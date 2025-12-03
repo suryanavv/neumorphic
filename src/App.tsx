@@ -1,19 +1,21 @@
 import "./App.css"
-import { useState } from "react"
+import { useState, Suspense, lazy } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AppHeader } from "@/components/app-header"
-import { AnalyticsPage } from "@/components/analytics-page"
-import { AppointmentPage } from "@/components/appointment-page"
-import { PatientsPage } from "@/components/patients-page"
-import { LogsPage } from "@/components/logs-page"
-import { FrontDeskPage } from "@/components/front-desk-page"
-import { RefillRequestsPage } from "@/components/refill-requests-page"
-import { SettingsPage } from "@/components/settings-page"
-import { LoginPage } from "@/components/login-page"
-import { CalendarIntegrations } from "@/components/calendar-integrations"
 import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
+
+// Lazy load page components for code splitting
+const AnalyticsPage = lazy(() => import("@/components/analytics-page").then(module => ({ default: module.AnalyticsPage })))
+const AppointmentPage = lazy(() => import("@/components/appointment-page").then(module => ({ default: module.AppointmentPage })))
+const PatientsPage = lazy(() => import("@/components/patients-page").then(module => ({ default: module.PatientsPage })))
+const LogsPage = lazy(() => import("@/components/logs-page").then(module => ({ default: module.LogsPage })))
+const FrontDeskPage = lazy(() => import("@/components/front-desk-page").then(module => ({ default: module.FrontDeskPage })))
+const RefillRequestsPage = lazy(() => import("@/components/refill-requests-page").then(module => ({ default: module.RefillRequestsPage })))
+const SettingsPage = lazy(() => import("@/components/settings-page").then(module => ({ default: module.SettingsPage })))
+const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
+const CalendarIntegrations = lazy(() => import("@/components/calendar-integrations").then(module => ({ default: module.CalendarIntegrations })))
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard")
@@ -34,31 +36,81 @@ export default function App() {
 
 
   const renderContent = () => {
+    const LoadingFallback = () => (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    )
+
     switch (currentPage) {
       case "dashboard":
-        return <AnalyticsPage onPageChange={setCurrentPage} />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <AnalyticsPage onPageChange={setCurrentPage} />
+          </Suspense>
+        )
       case "patients":
-        return <PatientsPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <PatientsPage />
+          </Suspense>
+        )
       case "appointments":
-        return <AppointmentPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <AppointmentPage />
+          </Suspense>
+        )
       case "logs":
-        return <LogsPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <LogsPage />
+          </Suspense>
+        )
       case "front-desk":
-        return <FrontDeskPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <FrontDeskPage />
+          </Suspense>
+        )
       case "refill-requests":
-        return <RefillRequestsPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <RefillRequestsPage />
+          </Suspense>
+        )
       case "settings":
-        return <SettingsPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <SettingsPage />
+          </Suspense>
+        )
       case "calendar-integrations":
-        return <CalendarIntegrations />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <CalendarIntegrations />
+          </Suspense>
+        )
       default:
-        return <AppointmentPage />
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            <AppointmentPage />
+          </Suspense>
+        )
     }
   }
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
-    return <LoginPage onLogin={handleLogin} />
+    return (
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
+      }>
+        <LoginPage onLogin={handleLogin} />
+      </Suspense>
+    )
   }
 
   return (
