@@ -2,12 +2,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import data from "@/data.json"
 
 interface AppHeaderProps {
-  userType?: 'admin' | 'doctor'
   currentPage?: string
 }
 
-export function AppHeader({ userType, currentPage }: AppHeaderProps) {
-  const { app, navMain, patients, frontDeskRequests } = data
+export function AppHeader({ currentPage }: AppHeaderProps) {
+  const { app, navMain, frontDeskRequests } = data
 
   // Map page keys to display names with counts
   const getPageTitle = (page: string) => {
@@ -25,7 +24,7 @@ export function AppHeader({ userType, currentPage }: AppHeaderProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 backdrop-blur-sm px-4">
+    <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center justify-between gap-2 bg-background px-4">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <span className="text-lg font-semibold">
@@ -57,12 +56,6 @@ export function AppHeader({ userType, currentPage }: AppHeaderProps) {
             </div>
           </div>
         {/* </motion.div> */}
-
-        {userType && (
-          <span className="text-sm text-muted-foreground capitalize">
-            {userType} Login
-          </span>
-        )}
       </div>
     </header>
   )

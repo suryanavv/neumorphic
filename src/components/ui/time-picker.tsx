@@ -71,7 +71,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
               <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
                 Hour
               </div>
-              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1">
+              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
                 <div className="py-0.5 space-y-1">
                   {hours.map((hour) => (
                     <div
@@ -95,7 +95,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
               <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
                 Min
               </div>
-              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1">
+              <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
                 <div className="py-0.5 space-y-1">
                   {minutes.map((minute) => (
                     <div

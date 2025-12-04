@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { IconX, IconArrowLeft } from "@tabler/icons-react"
+import { IconArrowLeft, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import data from "@/data.json"
 
@@ -57,7 +57,7 @@ export function PatientsPage() {
           <Button
             onClick={handleCloseProfile}
             size="sm"
-            className="text-primary hover:bg-primary/10 text-xs font-medium neumorphic-card px-3 py-2 rounded-md neumorphic-hover neumorphic-active transition-all duration-200"
+            className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
           >
             <IconArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Patients</span>
@@ -293,7 +293,7 @@ export function PatientsPage() {
       {/* Patients Table */}
       <div className="px-4 lg:px-6">
         {/* Header with title and Add Patient button */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">Patients ({patients.length})</h2>
           <Button
             onClick={() => setShowAddForm(true)}
@@ -304,9 +304,9 @@ export function PatientsPage() {
         </div>
         <div className="neumorphic-inset rounded-lg p-4 border-0">
 
-          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto">
+          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
             <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10 backdrop-blur-sm">
+              <thead className="sticky top-0 z-10 bg-card">
                 <tr className="border-b-2 border-muted/90 bg-muted/10">
                   <th className="text-left font-medium py-3 px-2">Patient ID</th>
                   <th className="text-left font-medium py-3 px-2">Patient Name</th>
@@ -320,7 +320,8 @@ export function PatientsPage() {
                   <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
                     <td className="py-3 px-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <IconUserCircle className="w-5 h-5 text-primary" />
                         <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
                       </div>
                     </td>
@@ -345,24 +346,16 @@ export function PatientsPage() {
       {/* Add Patient Modal */}
       {showAddForm && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-md flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50 p-4"
           onClick={() => setShowAddForm(false)}
         >
           <div
-            className="neumorphic-pressed rounded-lg w-full max-w-sm mx-auto max-h-[85vh] overflow-hidden"
+            className="neumorphic-pressed rounded-lg w-full max-w-sm mx-auto max-h-[80vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold">Add New Patient</h2>
-                <Button
-                  onClick={() => setShowAddForm(false)}
-                  variant="ghost"
-                  size="icon"
-                  className="neumorphic-soft neumorphic-hover neumorphic-active h-8 w-8"
-                >
-                  <IconX className="w-4 h-4" />
-                </Button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -404,7 +397,7 @@ export function PatientsPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                <div className="flex gap-3 pt-3">
                   <Button
                     onClick={() => setShowAddForm(false)}
                     className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:bg-destructive hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"

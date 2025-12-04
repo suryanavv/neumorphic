@@ -1,6 +1,6 @@
 // /mnt/data/appointment-page.tsx
 import { useState, useEffect } from "react"
-import { IconChevronLeft, IconChevronRight, IconCalendar } from "@tabler/icons-react"
+import { IconChevronLeft, IconChevronRight, IconCalendar, IconUserCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import data from "@/data.json"
@@ -67,6 +67,36 @@ const calendarVariants = {
   })
 }
 
+// Helper to parse "hh:mm AM/PM" into minutes since midnight for sorting
+const parseTimeToMinutes = (timeStr: string) => {
+  if (!timeStr) return Number.MAX_SAFE_INTEGER
+
+  const [timePart, modifierRaw] = timeStr.split(" ")
+  if (!timePart) return Number.MAX_SAFE_INTEGER
+
+  const modifier = modifierRaw?.toUpperCase()
+  const [h, m] = timePart.split(":")
+  let hours = Number(h)
+  const minutes = Number(m ?? 0)
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return Number.MAX_SAFE_INTEGER
+  }
+
+  if (modifier === "PM" && hours !== 12) {
+    hours += 12
+  } else if (modifier === "AM" && hours === 12) {
+    hours = 0
+  }
+
+  return hours * 60 + minutes
+}
+
+const sortAppointmentsByTime = (appointments: any[]) => {
+  return [...appointments].sort((a, b) => {
+    return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time)
+  })
+}
 
 export function AppointmentPage() {
   const { appointmentsByDate } = data
@@ -192,14 +222,16 @@ export function AppointmentPage() {
   const getTodaysAppointments = () => {
     const today = new Date()
     const todayKey = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`
-    return appointmentsByDate[todayKey as keyof typeof appointmentsByDate] || []
+    const todays = appointmentsByDate[todayKey as keyof typeof appointmentsByDate] || []
+    return sortAppointmentsByTime(todays)
   }
 
 
   const getSelectedDateAppointments = () => {
     if (!selectedDate) return []
     const dateKey = `${currentYear}-${currentMonth}-${selectedDate}`
-    return appointmentsByDate[dateKey as keyof typeof appointmentsByDate] || []
+    const selected = appointmentsByDate[dateKey as keyof typeof appointmentsByDate] || []
+    return sortAppointmentsByTime(selected)
   }
 
   const calendarGrid = generateCalendarGrid(currentMonth, currentYear)
@@ -224,16 +256,8 @@ export function AppointmentPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut" }}
         >
-          Welcome Back, Dr. Maartha Nelson
+          Welcome, Dr. Maartha Nelson
         </motion.h1>
-        <motion.p
-          className="text-sm md:text-base text-muted-foreground"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-        >
-          Here's your appointments overview for today
-        </motion.p>
       </motion.div>
 
       {/* Today's Appointments Section */}
@@ -395,9 +419,9 @@ export function AppointmentPage() {
                         transition={{ duration: 0.4 }}
                       >
                         <div className="overflow-x-auto flex-1">
-                          <div className="h-[44vh] overflow-y-auto">
+                          <div className="max-h-[80vh] overflow-y-auto bg-card rounded-lg">
                             <table className="w-full text-sm">
-                              <thead className="sticky top-0 z-10 backdrop-blur-sm">
+                              <thead className="sticky top-0 z-10 bg-card">
                                 <tr className="border-b-2 border-muted/90 bg-muted/10">
                                   <th className="text-left font-medium py-3 px-2">Time</th>
                                   <th className="text-left font-medium py-3 px-2">Patient</th>
@@ -408,20 +432,11 @@ export function AppointmentPage() {
                               </thead>
                               <tbody className="divide-y-2 divide-muted/90">
                               {selectedDateAppointments.map((apt: any, index: number) => (
-                                <motion.tr
-                                  key={index}
-                                  className="hover:bg-muted/30"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  transition={{ duration: 0.2, delay: index * 0.02 }}
-                                  whileHover={{
-                                    backgroundColor: "rgba(var(--muted), 0.4)",
-                                    transition: { duration: 0.15 }
-                                  }}
-                                >
+                                <tr key={index} className="hover:bg-muted/30 transition-colors">
                                   <td className="py-3 px-2 font-medium text-sm">{apt.time}</td>
                                   <td className="py-3 px-2">
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
+                                    <IconUserCircle className="w-5 h-5 text-muted-foreground" />
                                       <span className="font-medium text-sm">{apt.patient}</span>
                                     </div>
                                   </td>
@@ -442,7 +457,7 @@ export function AppointmentPage() {
                                       {apt.status}
                                     </motion.span>
                                   </td>
-                                </motion.tr>
+                                </tr>
                               ))}
                             </tbody>
                           </table>
@@ -620,7 +635,7 @@ export function AppointmentPage() {
                           aspect-square flex flex-col justify-center items-center
                           ${day.isCurrentMonth
                             ? selectedDate === day.date
-                              ? 'neumorphic-pressed shadow-inner'
+                              ? 'neumorphic-pressed shadow-inner border-1 border-primary'
                               : 'neumorphic'
                             : 'neumorphic-inset opacity-50 cursor-not-allowed'
                           }
@@ -632,7 +647,7 @@ export function AppointmentPage() {
                       >
                         <div
                           className={`
-                            text-xs font-medium text-center
+                            text-xs font-bold text-center
                             ${day.isCurrentMonth
                               ? selectedDate === day.date
                                 ? 'text-primary font-bold'
@@ -650,14 +665,14 @@ export function AppointmentPage() {
                         <AnimatePresence>
                           {day.appointments.length > 0 && day.isCurrentMonth && (
                             <motion.div
-                              className=""
+                              className="-mt-0.5"
                               initial={{ scale: 0, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
                               exit={{ scale: 0, opacity: 0 }}
                               transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
                             >
                               <motion.div
-                                className={`appointment-badge inline-flex items-center justify-center text-xs font-semibold rounded-full px-1 neumorphic-inset bg-primary/10 text-primary border border-primary/20`}
+                                className={`appointment-badge inline-flex items-center justify-center text-xs font-medium rounded-full px-1 neumorphic-inset bg-primary/10 text-primary border border-primary/20`}
                                 whileHover={{ scale: 1.1 }}
                                 animate={{
                                   scale: [1, 1.1, 1],

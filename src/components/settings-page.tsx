@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { IconPlus, IconTrash, IconPencil } from "@tabler/icons-react"
+import { IconPlus, IconTrash, IconPencil, IconRefresh } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -74,6 +74,34 @@ type OffDay = {
   ])
 
   const [publicHolidays, setPublicHolidays] = useState<OffDay[]>([])
+
+  // Default public holidays (could be fetched from an API in a real app)
+  const defaultPublicHolidays: OffDay[] = [
+    {
+      id: 1,
+      startDate: "01-01-2026",
+      allDay: true,
+      startTime: "12:00 AM",
+      endTime: "11:59 PM",
+      reason: "New Year's Day",
+    },
+    {
+      id: 2,
+      startDate: "26-01-2026",
+      allDay: true,
+      startTime: "12:00 AM",
+      endTime: "11:59 PM",
+      reason: "Republic Day",
+    },
+    {
+      id: 3,
+      startDate: "15-08-2026",
+      allDay: true,
+      startTime: "12:00 AM",
+      endTime: "11:59 PM",
+      reason: "Independence Day",
+    },
+  ]
 
   const [isOffDayDialogOpen, setIsOffDayDialogOpen] = useState(false)
   const [editingOffDay, setEditingOffDay] = useState<OffDay | null>(null)
@@ -234,6 +262,11 @@ type OffDay = {
     // You could make an API call here
   }
 
+  const handleSyncPublicHolidays = () => {
+    setPublicHolidays(defaultPublicHolidays)
+    console.log("Synced public holidays:", defaultPublicHolidays)
+  }
+
   return (
     <div className="px-3 sm:px-4 lg:px-6">
       <div className="space-y-4 sm:space-y-5">
@@ -244,10 +277,10 @@ type OffDay = {
             setActiveSettingsTab(value as "working-hours" | "off-days" | "public-holidays")
           }
         >
-          <TabsList>
-            <TabsTrigger value="working-hours">Working Hours</TabsTrigger>
-            <TabsTrigger value="off-days">Off Days</TabsTrigger>
-            <TabsTrigger value="public-holidays">Public Holidays</TabsTrigger>
+          <TabsList className="neumorphic-inset p-1 gap-1">
+            <TabsTrigger value="working-hours" className="">Working Hours</TabsTrigger>
+            <TabsTrigger value="off-days" className="">Off Days</TabsTrigger>
+            <TabsTrigger value="public-holidays" className="">Public Holidays</TabsTrigger>
           </TabsList>
 
           {/* Working Hours Tab */}
@@ -256,7 +289,7 @@ type OffDay = {
               {workingHours.map((day, index) => (
                 <div
                   key={day.day}
-                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3 neumorphic-soft rounded-lg neumorphic-hover neumorphic-active transition-all duration-200"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 py-3 neumorphic-inset rounded-lg neumorphic-hover neumorphic-active transition-all duration-200"
                 >
                   <div className="w-full sm:w-20 font-medium text-sm">{day.day}</div>
                   {day.isClosed ? (
@@ -389,18 +422,15 @@ type OffDay = {
             <div>
 
               <div className="flex items-center justify-between gap-3 mb-2 pl-1">
-                <span className="text-xs sm:text-sm text-muted-foreground">
-                  Use this for national and regional holidays.
+                <span className="text-sm sm:text-base">
+                  Federal holidays that will block all appointments.
                 </span>
                 <Button
-                  onClick={() => {
-                    setActiveSettingsTab("public-holidays")
-                    openCreateOffDayDialog()
-                  }}
+                  onClick={handleSyncPublicHolidays}
                   className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
-                  <IconPlus className="w-3 h-3" />
-                  Add Public Holiday
+                  <IconRefresh className="w-3 h-3" />
+                  Sync Holidays
                 </Button>
               </div>
 
@@ -422,7 +452,7 @@ type OffDay = {
                             colSpan={4}
                             className="py-6 text-center text-sm text-muted-foreground"
                           >
-                            No public holidays added yet.
+                            No public holidays synced yet. Click "Sync Holidays" to load them.
                           </TableCell>
                         </TableRow>
                       ) : (
@@ -490,19 +520,6 @@ type OffDay = {
                   ? `Edit ${activeSettingsTab === "public-holidays" ? "Public Holiday" : "Off Day"}`
                   : `Add ${activeSettingsTab === "public-holidays" ? "Public Holiday" : "Off Day"}`}
               </DialogTitle>
-              <DialogDescription>
-                {editingOffDay ? (
-                  <>
-                    Update the details of this{" "}
-                    {activeSettingsTab === "public-holidays" ? "public holiday" : "off day"}.
-                  </>
-                ) : (
-                  <>
-                    Configure the date range and optional reason. Leave{" "}
-                    <span className="font-medium">End Date</span> empty for a single day.
-                  </>
-                )}
-              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-3">
@@ -524,7 +541,7 @@ type OffDay = {
                   <Label htmlFor="offday-end-date">
                     End Date{" "}
                     <span className="text-muted-foreground text-xs font-normal">
-                      (Optional - for date ranges)
+                      (Optional)
                     </span>
                   </Label>
                   <Input

@@ -15,23 +15,46 @@
     { "day": "Sun", "scheduled": 2, "cancelled": 0 }
   ],
   "appointmentsByDate": {
-    "2025-11-1": [],
-    "2025-11-2": [],
-    "2025-11-3": [],
-    "2025-11-4": [],
-    "2025-11-5": [],
-    "2025-11-6": [],
-    "2025-11-7": [],
-    "2025-11-8": [],
-    "2025-11-9": [],
-    "2025-11-10": [],
-    "2025-11-11": [],
-    "2025-11-12": [],
-    "2025-11-13": [],
-    "2025-11-14": [],
-    "2025-11-15": [],
-    "2025-11-16": [],
-    "2025-11-17": [
+    "2025-12-1": [],
+    "2025-12-2": [],
+    "2025-12-3": [
+      { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Cardiac evaluation" },
+      { "patient": "Micheal Jordan", "doctor": "Martha Nelson", "time": "09:30 AM", "status": "Completed", "reason": "Sports injury assessment" },
+      { "patient": "Thomas Shelby", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Cancelled", "reason": "Allergy treatment" },
+      { "patient": "Ruby Singh", "doctor": "Martha Nelson", "time": "03:30 PM", "status": "Scheduled", "reason": "Women's health screening" }
+    ],
+    "2025-12-4": [
+      { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "02:00 PM", "status": "Completed", "reason": "Annual physical examination" },
+      { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "In Progress", "reason": "Follow-up consultation" },
+      { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Blood pressure check" },
+      { "patient": "Rohini Chintala", "doctor": "Martha Nelson", "time": "10:00 AM", "status": "Scheduled", "reason": "Vaccination appointment" },
+      { "patient": "Rohini Chintala", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Medication review" },
+      { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Cancelled", "reason": "Chronic pain management" }
+      ],
+    "2025-12-5": [
+      { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Completed", "reason": "Diabetes management" },
+      { "patient": "Vinay Kumar", "doctor": "Martha Nelson", "time": "11:00 AM", "status": "Scheduled", "reason": "Thyroid check" },
+      { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "No-show", "reason": "Skin rash evaluation" },
+      { "patient": "Ariana Galea", "doctor": "Martha Nelson", "time": "02:30 PM", "status": "Scheduled", "reason": "Mental health consultation" },
+      { "patient": "Ria Gupta", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "In Progress", "reason": "Pregnancy check-up" }
+    ],
+    "2025-12-6": [
+      { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Cardiac evaluation" },
+      { "patient": "Micheal Jordan", "doctor": "Martha Nelson", "time": "09:30 AM", "status": "Completed", "reason": "Sports injury assessment" },
+      { "patient": "Thomas Shelby", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Cancelled", "reason": "Allergy treatment" },
+      { "patient": "Ruby Singh", "doctor": "Martha Nelson", "time": "03:30 PM", "status": "Scheduled", "reason": "Women's health screening" }
+    ],
+    "2025-12-7": [],
+    "2025-12-8": [],
+    "2025-12-9": [],
+    "2025-12-10": [],
+    "2025-12-11": [],
+    "2025-12-12": [],
+    "2025-12-13": [],
+    "2025-12-14": [],
+    "2025-12-15": [],
+    "2025-12-16": [],
+    "2025-12-17": [
       { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "02:00 PM", "status": "Completed", "reason": "Annual physical examination" },
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "In Progress", "reason": "Follow-up consultation" },
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Blood pressure check" },
@@ -40,27 +63,27 @@
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Cancelled", "reason": "Chronic pain management" },
       { "patient": "Michael Smith", "doctor": "Martha Nelson", "time": "04:30 PM", "status": "Scheduled", "reason": "Lab results discussion" }
     ],
-    "2025-11-18": [
+    "2025-12-18": [
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Completed", "reason": "Diabetes management" },
       { "patient": "Vinay Kumar", "doctor": "Martha Nelson", "time": "11:00 AM", "status": "Scheduled", "reason": "Thyroid check" },
       { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "No-show", "reason": "Skin rash evaluation" },
       { "patient": "Ariana Galea", "doctor": "Martha Nelson", "time": "02:30 PM", "status": "Scheduled", "reason": "Mental health consultation" },
       { "patient": "Ria Gupta", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "In Progress", "reason": "Pregnancy check-up" }
     ],
-    "2025-11-19": [
+    "2025-12-19": [
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Cardiac evaluation" },
       { "patient": "Micheal Jordan", "doctor": "Martha Nelson", "time": "09:30 AM", "status": "Completed", "reason": "Sports injury assessment" },
       { "patient": "Thomas Shelby", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Cancelled", "reason": "Allergy treatment" },
       { "patient": "Ruby Singh", "doctor": "Martha Nelson", "time": "03:30 PM", "status": "Scheduled", "reason": "Women's health screening" }
     ],
-    "2025-11-20": [
+    "2025-12-20": [
       { "patient": "Rohini Chintala", "doctor": "Martha Nelson", "time": "10:00 AM", "status": "In Progress", "reason": "Pediatric consultation" },
       { "patient": "Gyanendra Kuppanedi", "doctor": "Martha Nelson", "time": "11:30 AM", "status": "Scheduled", "reason": "Eye examination" },
       { "patient": "Aditya Srikhar", "doctor": "Martha Nelson", "time": "01:30 PM", "status": "Completed", "reason": "Dental referral" },
       { "patient": "Ben Jordan", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Sleep disorder evaluation" },
       { "patient": "Max Traver", "doctor": "Martha Nelson", "time": "04:30 PM", "status": "No-show", "reason": "Weight management" }
     ],
-    "2025-11-21": [
+    "2025-12-21": [
       { "patient": "Rohini Chintala", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Completed", "reason": "Post-surgery follow-up" },
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Chronic fatigue evaluation" },
       { "patient": "David Smith", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "In Progress", "reason": "Back pain assessment" },
@@ -68,14 +91,14 @@
       { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "03:30 PM", "status": "Cancelled", "reason": "Anxiety treatment" },
       { "patient": "Walter White", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "Scheduled", "reason": "Cancer screening" }
     ],
-    "2025-11-22": [
+    "2025-12-22": [
       { "patient": "Vinay Kumar", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Migraine consultation" },
       { "patient": "Noah Brooks", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Joint pain evaluation" },
       { "patient": "Michael Smith", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Depression therapy" },
       { "patient": "Roshan Savio", "doctor": "Martha Nelson", "time": "01:30 PM", "status": "Scheduled", "reason": "Ear infection treatment" },
       { "patient": "Dibyananda Deshpande", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Digestive issues" }
     ],
-    "2025-11-23": [
+    "2025-12-23": [
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Diabetes follow-up" },
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "09:30 AM", "status": "Scheduled", "reason": "Blood sugar monitoring" },
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "10:00 AM", "status": "Scheduled", "reason": "Insulin adjustment" },
@@ -83,7 +106,7 @@
       { "patient": "John Taylor", "doctor": "Martha Nelson", "time": "01:00 PM", "status": "Scheduled", "reason": "Physical therapy referral" },
       { "patient": "Rina Marth", "doctor": "Martha Nelson", "time": "02:30 PM", "status": "Scheduled", "reason": "Vaccination booster" }
     ],
-    "2025-11-24": [
+    "2025-12-24": [
       { "patient": "Ria Gupta", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Prenatal care" },
       { "patient": "Micheal Jordan", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Orthopedic consultation" },
       { "patient": "Thomas Shelby", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Respiratory check" },
@@ -91,7 +114,7 @@
       { "patient": "Gyanendra Kuppanedi", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Vision screening" },
       { "patient": "Aditya Srikhar", "doctor": "Martha Nelson", "time": "04:30 PM", "status": "Scheduled", "reason": "ADHD evaluation" }
     ],
-    "2025-11-25": [
+    "2025-12-25": [
       { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Mental health follow-up" },
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Hypertension monitoring" },
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Cardiology referral" },
@@ -99,7 +122,7 @@
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Chronic pain management" },
       { "patient": "Michael Smith", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "Scheduled", "reason": "Medication adjustment" }
     ],
-    "2025-11-26": [
+    "2025-12-26": [
       { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Mental health follow-up" },
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Hypertension monitoring" },
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Cardiology referral" },
@@ -107,10 +130,10 @@
       { "patient": "Tony Pamera", "doctor": "Martha Nelson", "time": "03:00 PM", "status": "Scheduled", "reason": "Chronic pain management" },
       { "patient": "Michael Smith", "doctor": "Martha Nelson", "time": "04:00 PM", "status": "Scheduled", "reason": "Medication adjustment" }
     ],
-    "2025-11-27": [],
-    "2025-11-28": [],
-    "2025-11-29": [],
-    "2025-11-30": [
+    "2025-12-27": [],
+    "2025-12-28": [],
+    "2025-12-29": [],
+    "2025-12-30": [
       { "patient": "Ariana Grande", "doctor": "Martha Nelson", "time": "09:00 AM", "status": "Scheduled", "reason": "Mental health follow-up" },
       { "patient": "David Johnson", "doctor": "Martha Nelson", "time": "10:30 AM", "status": "Scheduled", "reason": "Hypertension monitoring" },
       { "patient": "Jonas Kahnwald", "doctor": "Martha Nelson", "time": "12:00 PM", "status": "Scheduled", "reason": "Cardiology referral" },
@@ -1265,6 +1288,149 @@
       "details": "Azithromycin - one sheet",
       "pharmacyName": "Sai Krishna Pharmacy",
       "pharmacyLocation": "opposite Tesla Diagnostics Hyderabad, India",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
+      "createdAt": "Nov 18 2025"
+    },
+    {
+      "patientId": 581,
+      "patientName": "Tony Pamera",
+      "patientPhone": "+12674679709",
+      "callerName": "Tony Pamara",
+      "relationship": "self",
+      "details": "Levoxine (L-E-V-O-X-I-N-E)",
+      "pharmacyName": "Walmart Pharmacy",
+      "pharmacyLocation": "Mansfield, Texas 76063",
       "createdAt": "Nov 18 2025"
     },
     {

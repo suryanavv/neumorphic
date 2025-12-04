@@ -9,18 +9,18 @@ export function RefillRequestsPage() {
       {/* Refill Requests Table */}
       <div className="px-4 lg:px-6">
         <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm min-w-[1000px]">
-              <thead className="sticky top-0 z-10 backdrop-blur-sm">
+          <div className="overflow-x-auto max-h-[84vh] overflow-y-auto bg-card rounded-lg">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 z-10 bg-card">
                 <tr className="border-b-2 border-muted/90 bg-muted/10">
-                  <th className="text-left font-medium py-3 px-2 min-w-[80px] whitespace-nowrap">Patient ID</th>
+                  <th className="text-left font-medium py-3 px-2 min-w-[75px] whitespace-nowrap">Patient ID</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[120px]">Patient Name</th>
-                  <th className="text-left font-medium py-3 px-2 min-w-[140px]">Patient Phone</th>
+                  <th className="text-left font-medium py-3 px-2 min-w-[115px]">Patient Phone</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[120px]">Caller Name</th>
-                  <th className="text-left font-medium py-3 px-2 min-w-[100px]">Relationship</th>
+                  <th className="text-left font-medium py-3 px-2 min-w-[90px]">Relationship</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[200px]">Details</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[150px]">Pharmacy Name</th>
-                  <th className="text-left font-medium py-3 px-2 min-w-[180px]">Pharmacy Location</th>
+                  <th className="text-left font-medium py-3 px-2 min-w-[175px]">Pharmacy Location</th>
                   <th className="text-left font-medium py-3 px-2 min-w-[100px]">Created At</th>
                 </tr>
               </thead>

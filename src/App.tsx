@@ -20,17 +20,13 @@ const CalendarIntegrations = lazy(() => import("@/components/calendar-integratio
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard")
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [userType, setUserType] = useState<'admin' | 'doctor'>('admin')
-
-  const handleLogin = (type: 'admin' | 'doctor') => {
-    setUserType(type)
+  const handleLogin = (_type: 'admin' | 'doctor') => {
     setIsAuthenticated(true)
     setCurrentPage("appointments")
   }
 
   const handleLogout = () => {
     setIsAuthenticated(false)
-    setUserType('admin')
     setCurrentPage("dashboard")
   }
 
@@ -124,7 +120,7 @@ export default function App() {
     >
       <AppSidebar variant="floating" onPageChange={setCurrentPage} currentPage={currentPage} onLogout={handleLogout} />
       <main className="flex-1">
-        <AppHeader userType={userType} currentPage={currentPage} />
+        <AppHeader currentPage={currentPage} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col my-2">
             <div className="flex flex-col">
