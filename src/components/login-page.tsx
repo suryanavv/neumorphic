@@ -114,7 +114,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
           <div className="space-y-4">
             <div className="text-center -mt-3">
-              <h2 className="text-xl sm:text-2xl text-foreground font-semibold">Login</h2>
+              {/* <h2 className="text-xl sm:text-2xl text-foreground font-semibold">Login</h2> */}
               {/* <p className="text-sm sm:text-base mt-1">Sign in to your account</p> */}
             </div>
 

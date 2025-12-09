@@ -1,125 +1,106 @@
-import { useState } from "react"
-import { IconArrowLeft, IconUserCircle } from "@tabler/icons-react"
+import { useState, useEffect } from "react"
+import { IconArrowLeft, IconUserCircle, IconFilter } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { DatePicker } from "@/components/ui/date-picker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateUS, formatDateUSShort } from "@/lib/date"
+import { AdminPatientsAPI, AdminClinicsAPI } from "@/api/admin"
+import type { Patient, Guardian } from "@/api/shared/types"
 
-// Static sample patients for admin (demo purposes)
-// TODO: Replace with admin API when available
-const patients = [
-  {
-    first_name: "Samantha",
-    last_name: "Reeves",
-    dob: "1977-08-14",
-    phone_number: "+14152223344",
-    clinic_id: 56,
-    status: "active",
-    id: 290,
-    guardians: [
-      {
-        clinic_id: 56,
-        first_name: "Jessica",
-        last_name: "Reeves",
-        dob: "1972-03-25",
-        relationship_to_patient: "sister",
-        id: 31
-      }
-    ],
-    documents: [
-      {
-        document_id: 12,
-        title: "Insurance Card",
-        type: "insurance",
-        uploaded_at: "2024-04-02T14:12:00Z"
-      }
-    ],
-    appointments: {
-      upcoming: [
-        { date: "2025-11-14", time: "10:15 AM", status: "Scheduled" }
-      ],
-      past: [
-        { date: "2024-12-01", time: "03:00 PM", status: "Completed" }
-      ]
-    }
-  },
-  {
-    first_name: "Oliver",
-    last_name: "Harper",
-    dob: "1986-09-22",
-    phone_number: "+12025550123",
-    clinic_id: 56,
-    status: "inactive",
-    id: 897,
-    guardians: [],
-    documents: [],
-    appointments: {
-      upcoming: [],
-      past: [
-        { date: "2023-08-19", time: "01:45 PM", status: "Cancelled" }
-      ]
-    }
-  },
-  {
-    first_name: "Emily",
-    last_name: "Zhang",
-    dob: "2015-05-11",
-    phone_number: "+14705557890",
-    clinic_id: 56,
-    status: "active",
-    id: 614,
-    guardians: [
-      {
-        clinic_id: 56,
-        first_name: "Wei",
-        last_name: "Zhang",
-        dob: "1979-12-02",
-        relationship_to_patient: "mother",
-        id: 77
-      }
-    ],
-    documents: [],
-    appointments: {
-      upcoming: [],
-      past: []
-    }
-  },
-  {
-    first_name: "Michael",
-    last_name: "Smith",
-    dob: "2000-09-22",
-    phone_number: "+14848001855",
-    clinic_id: 56,
-    status: "active",
-    id: 489,
-    guardians: [],
-    documents: [],
-    appointments: {
-      upcoming: [],
-      past: []
-    }
-  },
-  {
-    first_name: "Jonas",
-    last_name: "Kahnwald",
-    dob: "2000-08-06",
-    phone_number: "+916305128196",
-    clinic_id: 56,
-    status: "active",
-    id: 453,
-    guardians: [],
-    documents: [],
-    appointments: {
-      upcoming: [],
-      past: []
-    }
+interface ExtendedPatient extends Patient {
+  documents?: Array<{
+    document_id?: number
+    id?: number
+    type: string
+    title?: string
+    description?: string
+    uploaded_at?: string
+    url?: string
+    file_url?: string
+    document_url?: string
+  }>
+  appointments?: {
+    upcoming: Array<{
+      date: string
+      time: string
+      status: string
+      appointment_id: number
+    }>
+    past: Array<{
+      date: string
+      time: string
+      status: string
+      appointment_id: number
+    }>
   }
-]
+}
+import type { Clinic } from "@/api/admin/clinics"
 
-type Patient = typeof patients[number]
 
 export function PatientsPage() {
   const [showAddForm, setShowAddForm] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null)
+  const [selectedPatient, setSelectedPatient] = useState<ExtendedPatient | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
+  const [allPatients, setAllPatients] = useState<Patient[]>([])
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Clinics state
+  const [clinics, setClinics] = useState<Clinic[]>([])
+  const [selectedClinicId, setSelectedClinicId] = useState<string>('all')
+
+  // Fetch clinics and patients data on component mount
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Fetch both clinics and patients in parallel
+        const [clinicsData, patientsData] = await Promise.all([
+          AdminClinicsAPI.getAllClinics().catch(() => []),
+          AdminPatientsAPI.getAllPatients() // Fetch all patients without clinic filter
+        ])
+
+        setClinics(clinicsData)
+        setAllPatients(patientsData)
+        setFilteredPatients(patientsData) // Initially show all patients
+      } catch (err) {
+        console.error('Failed to fetch data:', err)
+        setError('Failed to load data. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Filter patients when clinic selection changes
+  useEffect(() => {
+    if (selectedClinicId === 'all') {
+      setFilteredPatients(allPatients)
+    } else {
+      const clinicId = parseInt(selectedClinicId)
+      const filtered = allPatients.filter(patient => patient.clinic_id === clinicId)
+      setFilteredPatients(filtered)
+    }
+  }, [selectedClinicId, allPatients])
+
+  // Helper function to filter name input - only allow letters, spaces, hyphens, and apostrophes
+  const filterNameInput = (value: string): string => {
+    return value.replace(/[^a-zA-Z\s'-]/g, '')
+  }
+  
+  // Form state for adding patient
+  const [formData, setFormData] = useState({
+    firstName: '',
+    middleName: '',
+    lastName: '',
+    dob: '',
+    phoneNumber: ''
+  })
 
   const calculateAge = (dob: string) => {
     const birthDate = new Date(dob)
@@ -150,6 +131,14 @@ export function PatientsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     // Handle form submission
+    // Reset form
+    setFormData({
+      firstName: '',
+      middleName: '',
+      lastName: '',
+      dob: '',
+      phoneNumber: ''
+    })
     setShowAddForm(false)
   }
 
@@ -404,54 +393,92 @@ export function PatientsPage() {
     <div className="space-y-6">
       {/* Patients Table */}
       <div className="px-4 lg:px-6">
-        {/* Header with title and Add Patient button */}
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Patients ({patients.length})</h2>
-          <Button
-            onClick={() => setShowAddForm(true)}
-            className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
-          >
-            Add Patient
-          </Button>
-        </div>
+        {/* Header with title, filter and Add Patient button */}
+        {/* <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-4"> */}
+            {/* Provider Filter */}
+            <div className="flex items-center gap-2 mb-3">
+            <IconFilter className="w-4 h-4" />
+              <label className="text-sm font-medium">Filter by:</label>
+              <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
+                <SelectTrigger className="w-[200px] neumorphic-inset">
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All providers</SelectItem>
+                  {clinics.map((clinic) => (
+                    <SelectItem key={clinic.id} value={clinic.id.toString()}>
+                      {clinic.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          {/* </div>
+        </div> */}
         <div className="neumorphic-inset rounded-lg p-4 border-0">
+          {error && (
+            <div className="text-center py-8 text-destructive">
+              <p className="text-sm mb-2">{error}</p>
+              <Button
+                onClick={() => window.location.reload()}
+                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+              >
+                Try Again
+              </Button>
+            </div>
+          )}
 
-          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 z-10 bg-card">
-                <tr className="border-b-2 border-muted/90 bg-muted/10">
-                  <th className="text-left font-medium py-3 px-2">Patient ID</th>
-                  <th className="text-left font-medium py-3 px-2">Patient Name</th>
-                  <th className="text-left font-medium py-3 px-2">DOB</th>
-                  <th className="text-left font-medium py-3 px-2">Contact</th>
-                  <th className="text-left font-medium py-3 px-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-muted/90">
-                {patients.map((patient) => (
-                  <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
-                    <td className="py-3 px-2">
-                      <div className="flex items-center gap-1">
-                        <IconUserCircle className="w-5 h-5" />
-                        <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
-                    <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
-                    <td className="py-3 px-2">
-                      <Button
-                        onClick={() => handleViewProfile(patient)}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                      >
-                        View Profile
-                      </Button>
-                    </td>
+          {!error && (
+            <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 z-10 bg-card">
+                  <tr className="border-b-2 border-muted/90 bg-muted/10">
+                    <th className="text-left font-medium py-3 px-2">Patient Name</th>
+                    <th className="text-left font-medium py-3 px-2">Date of Birth</th>
+                    <th className="text-left font-medium py-3 px-2">Phone Number</th>
+                    <th className="text-left font-medium py-3 px-2">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y-2 divide-muted/90">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center">
+                        <div className="text-sm">Loading patients...</div>
+                      </td>
+                    </tr>
+                  ) : filteredPatients.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-8 text-center">
+                        <div className="text-sm">No patients found</div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredPatients.map((patient) => (
+                      <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="py-3 px-2">
+                          <div className="flex items-center gap-1">
+                            <IconUserCircle className="w-5 h-5" />
+                            <span className="font-medium text-sm">{`${patient.first_name} ${patient.last_name}`}</span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-2 text-sm">{formatDate(patient.dob)}</td>
+                        <td className="py-3 px-2 text-sm">{patient.phone_number}</td>
+                        <td className="py-3 px-2">
+                          <Button
+                            onClick={() => handleViewProfile(patient)}
+                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          >
+                            View Profile
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
@@ -459,66 +486,163 @@ export function PatientsPage() {
       {showAddForm && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50 p-4"
-          onClick={() => setShowAddForm(false)}
+          onClick={() => {
+            setShowAddForm(false)
+            setFormData({
+              firstName: '',
+              middleName: '',
+              lastName: '',
+              dob: '',
+              phoneNumber: ''
+            })
+          }}
         >
           <div
-            className="neumorphic-pressed rounded-lg w-full max-w-sm mx-auto max-h-[80vh] overflow-hidden"
+            className="neumorphic-pressed rounded-lg w-full max-w-xl mx-auto max-h-[90vh] overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-semibold">Add New Patient</h2>
+                <Button
+                  onClick={() => {
+                    setShowAddForm(false)
+                    setFormData({
+                      firstName: '',
+                      middleName: '',
+                      lastName: '',
+                      dob: '',
+                      phoneNumber: ''
+                    })
+                  }}
+                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+                >
+                  ×
+                </Button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-3">
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                    Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter full name"
-                    className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                    Date of Birth *
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="dd-mm-yyyy"
-                    className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                    Phone Number *
-                  </label>
-                  <div className="flex">
+                {/* Name Fields - All in one row */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      First Name *
+                    </label>
                     <input
-                      type="tel"
-                      placeholder="Enter phone number"
-                      className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                      type="text"
+                      placeholder="Enter first name"
+                      value={formData.firstName}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, firstName: filteredValue })
+                      }}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Middle Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter middle name"
+                      value={formData.middleName}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, middleName: filteredValue })
+                      }}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Last Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter last name"
+                      value={formData.lastName}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, lastName: filteredValue })
+                      }}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
                     />
                   </div>
                 </div>
 
+                {/* DOB and Phone Number - In one row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Date of Birth *
+                    </label>
+                    <DatePicker
+                      value={formData.dob}
+                      onChange={(value) => setFormData({ ...formData, dob: value })}
+                      placeholder="MM/DD/YYYY"
+                      required
+                      maxDate={new Date()} // Prevent future dates
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Phone Number *
+                    </label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
+                        +1
+                      </span>
+                      <input
+                        type="tel"
+                        placeholder="(XXX) XXX-XXXX"
+                        value={formData.phoneNumber}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, '') // Remove non-digits
+                          if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
+
+                          // Format as (XXX) XXX-XXXX
+                          if (value.length >= 6) {
+                            value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
+                          } else if (value.length >= 3) {
+                            value = `(${value.slice(0, 3)}) ${value.slice(3)}`
+                          } else if (value.length > 0) {
+                            value = `(${value}`
+                          }
+
+                          setFormData({ ...formData, phoneNumber: value })
+                        }}
+                        className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        required
+                        maxLength={14} // (XXX) XXX-XXXX = 14 characters
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex gap-3 pt-3">
                   <Button
-                    onClick={() => setShowAddForm(false)}
-                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    type="button"
+                    onClick={() => {
+                      setShowAddForm(false)
+                      setFormData({
+                        firstName: '',
+                        middleName: '',
+                        lastName: '',
+                        dob: '',
+                        phoneNumber: ''
+                      })
+                    }}
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Add Patient
                   </Button>

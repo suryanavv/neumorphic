@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { IconPlus, IconLoader2, IconTrash } from "@tabler/icons-react"
+import { IconPlus, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
 import { AuthStorage } from "@/api/auth"
@@ -44,7 +44,6 @@ export function CalendarIntegrations() {
   const [isLoading, setIsLoading] = useState(true)
   const [isConnecting, setIsConnecting] = useState(false)
   const [accountsData, setAccountsData] = useState<CalendarAccountsResponse | null>(null)
-  const [disconnectingId, setDisconnectingId] = useState<number | null>(null)
   // NOTE: settingPrimaryId is for handleSetPrimary which is commented out for now
   // const [settingPrimaryId, setSettingPrimaryId] = useState<number | null>(null)
 
@@ -96,35 +95,6 @@ export function CalendarIntegrations() {
     // Page will redirect, so no need to set isConnecting back to false
   }
 
-  // Handle disconnect account
-  const handleDisconnect = async (accountId: number, provider: 'google' | 'microsoft') => {
-    if (!doctorId) return
-
-    setDisconnectingId(accountId)
-
-    try {
-      await CalendarAPI.disconnectAccount(doctorId, accountId, provider)
-
-      // Update local state
-      if (accountsData) {
-        const updatedData = { ...accountsData }
-        if (provider === 'google') {
-          updatedData.google_accounts = updatedData.google_accounts.filter(a => a.id !== accountId)
-        } else {
-          updatedData.microsoft_accounts = updatedData.microsoft_accounts.filter(a => a.id !== accountId)
-        }
-        updatedData.total_accounts = updatedData.google_accounts.length + updatedData.microsoft_accounts.length
-        setAccountsData(updatedData)
-      }
-
-      toast.success(`${provider === 'google' ? 'Google' : 'Microsoft'} calendar disconnected`)
-    } catch (error) {
-      console.error("Failed to disconnect:", error)
-      toast.error("Failed to disconnect calendar")
-    } finally {
-      setDisconnectingId(null)
-    }
-  }
 
   // NOTE: handleSetPrimary function preserved for future use but commented out
   // to prevent unused variable build errors
@@ -165,7 +135,7 @@ export function CalendarIntegrations() {
   */
 
   // Render account card
-  const renderAccountCard = (account: CalendarAccount, provider: 'google' | 'microsoft') => (
+  const renderAccountCard = (account: CalendarAccount) => (
     <div key={account.id} className="flex items-center justify-between my-4 p-3 neumorphic-inset rounded-lg">
       <div className="flex items-center gap-3">
         <div>
@@ -182,20 +152,6 @@ export function CalendarIntegrations() {
           }`}>
           {account.is_valid ? 'Connected' : 'Expired'}
         </span>
-
-        {/* Disconnect button */}
-        <Button
-          onClick={() => handleDisconnect(account.id, provider)}
-          disabled={disconnectingId === account.id}
-          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-2 py-1"
-          title="Disconnect"
-        >
-          {disconnectingId === account.id ? (
-            <IconLoader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <IconTrash className="w-4 h-4" />
-          )}
-        </Button>
       </div>
     </div>
   )
@@ -238,7 +194,7 @@ export function CalendarIntegrations() {
 
             {/* Connected Google Calendars */}
             {googleAccounts.length > 0 ? (
-              googleAccounts.map((account) => renderAccountCard(account, 'google'))
+              googleAccounts.map((account) => renderAccountCard(account))
             ) : (
               <div className="p-4 text-center mt-4 neumorphic-inset rounded-lg">
                 <p className="text-sm">No Google calendars connected</p>
@@ -268,7 +224,7 @@ export function CalendarIntegrations() {
 
             {/* Connected Microsoft Calendars */}
             {microsoftAccounts.length > 0 ? (
-              microsoftAccounts.map((account) => renderAccountCard(account, 'microsoft'))
+              microsoftAccounts.map((account) => renderAccountCard(account))
             ) : (
               <div className="p-4 text-center neumorphic-inset rounded-lg">
                 <p className="text-sm">No Microsoft calendars connected</p>

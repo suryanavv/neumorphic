@@ -9,6 +9,7 @@ interface DatePickerProps {
   onChange?: (value: string) => void
   placeholder?: string
   disabled?: boolean
+  required?: boolean
   className?: string
   maxDate?: Date
   minDate?: Date
@@ -19,6 +20,7 @@ export function DatePicker({
   onChange,
   placeholder = "MM/DD/YYYY",
   disabled = false,
+  required = false,
   className,
   maxDate,
   minDate
@@ -71,6 +73,7 @@ export function DatePicker({
         onChange={handleDateChange}
         className="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
         disabled={disabled}
+        required={required}
         max={maxDate ? maxDate.toISOString().split('T')[0] : undefined}
         min={minDate ? minDate.toISOString().split('T')[0] : undefined}
       />

@@ -4,13 +4,87 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import { AuthStorage, AuthAPI } from "@/api/auth"
-import { CountsProvider } from "@/contexts/counts-context"
+import { CountsProvider, useCounts } from "@/contexts/counts-context"
 
 // Dynamic imports for shared components
 const AppSidebar = lazy(() => import("@/components/app-sidebar").then(module => ({ default: module.AppSidebar })))
 const AppHeader = lazy(() => import("@/components/app-header").then(module => ({ default: module.AppHeader })))
 
-const API_BASE_URL = 'https://staging-api.clinqly.ai'
+const getApiBaseUrl = (): string => {
+  return import.meta.env.VITE_API_BASE_URL
+}
+
+// Inner component to access counts context
+function AppContent({
+  currentPage,
+  pageParams,
+  navigateToPage,
+  handleLogout,
+  clinicData,
+  userData,
+  userType,
+  renderContent
+}: {
+  currentPage: string
+  pageParams: any
+  navigateToPage: (pageOrObject: string | { page: string; params?: any }) => void
+  handleLogout: () => void
+  clinicData: any
+  userData: any
+  userType: string
+  renderContent: () => React.ReactNode
+}) {
+  const { doctorsCount } = useCounts()
+
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "calc(var(--spacing) * 64)",
+          "--header-height": "calc(var(--spacing) * 12)",
+        } as React.CSSProperties
+      }
+    >
+      <Suspense fallback={
+        <div className="w-64 bg-background border-r animate-pulse">
+          <div className="h-16 border-b"></div>
+          <div className="p-4 space-y-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-8 bg-muted rounded"></div>
+            ))}
+          </div>
+        </div>
+      }>
+        <AppSidebar
+          variant="floating"
+          onPageChange={navigateToPage}
+          currentPage={currentPage}
+          onLogout={handleLogout}
+          clinicData={clinicData}
+          userData={userData}
+          userType={userType as 'admin' | 'doctor'}
+        />
+      </Suspense>
+      <main className="flex-1">
+        <Suspense fallback={
+          <div className="h-16 bg-background border-b animate-pulse flex items-center px-4">
+            <div className="h-8 w-32 bg-muted rounded"></div>
+          </div>
+        }>
+          <AppHeader currentPage={currentPage} userType={userType as 'admin' | 'doctor'} doctorsCount={doctorsCount ?? undefined} userData={userData} />
+        </Suspense>
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col my-2">
+            <div className="flex flex-col">
+              {renderContent()}
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </SidebarProvider>
+  )
+}
 
 // Lazy load page components for code splitting
 const DoctorAnalyticsPage = lazy(() => import("@/components/doctorpages/analytics-page").then(module => ({ default: module.AnalyticsPage })))
@@ -27,24 +101,26 @@ const AdminAppointmentPage = lazy(() => import("@/components/adminpages/appointm
 const AdminDoctorsPage = lazy(() => import("@/components/adminpages/doctors-page").then(module => ({ default: module.DoctorsPage })))
 const AdminPatientsPage = lazy(() => import("@/components/adminpages/patients-page").then(module => ({ default: module.PatientsPage })))
 const AdminLogsPage = lazy(() => import("@/components/adminpages/logs-page").then(module => ({ default: module.LogsPage })))
+const AdminMFASettingsPage = lazy(() => import("@/components/adminpages/mfa-settings-page").then(module => ({ default: module.MFASettingsPage })))
 
 const LoginPage = lazy(() => import("@/components/login-page").then(module => ({ default: module.LoginPage })))
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard")
+  const [pageParams, setPageParams] = useState<any>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState<any>(null)
   const [clinicData, setClinicData] = useState<any>(null)
 
   // Get user type to determine which components to use
-  const userType = AuthStorage.getUserType() || 'doctor'
+  const userType = (AuthStorage.getUserType() || 'doctor') as 'admin' | 'doctor'
   const isAdmin = userType === 'admin'
 
   // Validate current page based on user type
   useEffect(() => {
     if (isAuthenticated) {
-      const adminPages = ['dashboard', 'appointments', 'doctors', 'patients', 'logs']
+      const adminPages = ['dashboard', 'appointments', 'doctors', 'patients', 'logs', 'mfa-settings']
       const doctorPages = ['dashboard', 'appointments', 'patients', 'logs', 'front-desk', 'refill-requests', 'settings', 'calendar-integrations']
 
       const validPages = isAdmin ? adminPages : doctorPages
@@ -60,7 +136,7 @@ export default function App() {
   const fetchClinicData = async (clinicId: number) => {
     try {
       console.log('🏥 Fetching clinic data for clinic ID:', clinicId)
-      const response = await fetch(`${API_BASE_URL}/dashboard/clinics/${clinicId}`, {
+      const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics/${clinicId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${AuthStorage.getToken()}`,
@@ -83,9 +159,57 @@ export default function App() {
     }
   }
 
+  // Function to fetch full doctor profile (includes phone number)
+  const fetchDoctorData = async (doctorId: number, currentUserData?: any) => {
+    try {
+      console.log('👨‍⚕️ Fetching doctor data for doctor ID:', doctorId)
+      const response = await fetch(`${getApiBaseUrl()}/dashboard/doctors/${doctorId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${AuthStorage.getToken()}`,
+        },
+      })
+
+      if (response.ok) {
+        const doctor = await response.json()
+        console.log('✅ Doctor data fetched:', doctor)
+        console.log('📱 Phone fields in response:', {
+          phone: doctor.phone,
+          phone_number: doctor.phone_number,
+          mobile_phone: doctor.mobile_phone,
+          contact_number: doctor.contact_number
+        })
+        // Merge with existing userData to get complete profile including phone
+        const baseData = currentUserData || userData || {}
+        const updatedUserData = { ...baseData, ...doctor }
+        console.log('👤 Updated user data with phone:', updatedUserData)
+        setUserData(updatedUserData)
+        AuthStorage.setUserData(updatedUserData) // Update stored user data
+        return doctor
+      } else {
+        console.warn('⚠️ Failed to fetch doctor data:', response.status)
+        return null
+      }
+    } catch (error) {
+      console.error('💥 Error fetching doctor data:', error)
+      return null
+    }
+  }
+
+  // Enhanced page navigation function that handles page and optional parameters
+  const navigateToPage = (pageOrObject: string | { page: string; params?: any }) => {
+    if (typeof pageOrObject === 'string') {
+      setCurrentPage(pageOrObject)
+      setPageParams(null)
+    } else {
+      setCurrentPage(pageOrObject.page)
+      setPageParams(pageOrObject.params || null)
+    }
+  }
+
   // Expose navigation function globally for use in page components
   useEffect(() => {
-    window.navigateToPage = setCurrentPage
+    window.navigateToPage = navigateToPage
     return () => {
       delete window.navigateToPage
     }
@@ -111,9 +235,13 @@ export default function App() {
 
           setUserData(response.doctor)
 
-          // Fetch clinic data if doctor has clinic_id
+          // Fetch clinic and full doctor data
           if (response.doctor?.clinic_id) {
             await fetchClinicData(response.doctor.clinic_id)
+          }
+          // Fetch full doctor profile (includes phone number)
+          if (response.doctor?.id) {
+            await fetchDoctorData(response.doctor.id, response.doctor)
           }
 
           console.log('✅ SSO login successful, redirecting to appointments')
@@ -121,7 +249,7 @@ export default function App() {
           // Clear URL parameters and redirect
           window.history.replaceState({}, document.title, '/')
           setIsAuthenticated(true)
-          setCurrentPage("appointments")
+          setCurrentPage("appointments") // SSO login is typically for doctors
           setIsLoading(false)
           return
         } catch (error) {
@@ -155,11 +283,14 @@ export default function App() {
             if (storedUserData?.clinic_id) {
               await fetchClinicData(storedUserData.clinic_id)
             }
-            // Note: For admin users, we don't fetch clinic data since they should see app branding
-            // The sidebar will automatically show "EZ MedTech" and logo.svg for admins
+            // Fetch full doctor profile (includes phone number) on refresh
+            if (userType === 'doctor' && storedUserData?.id) {
+              await fetchDoctorData(storedUserData.id, storedUserData)
+            }
+            // Note: For admin users, we don't fetch clinic/doctor data since they should see app branding
 
             setIsAuthenticated(true)
-            setCurrentPage("appointments")
+            setCurrentPage(userType === 'admin' ? 'dashboard' : 'appointments')
           } else {
             console.log('❌ Token invalid, clearing stored data')
             // Token is invalid, clear stored data
@@ -195,10 +326,14 @@ export default function App() {
     if (type === 'doctor' && userData?.clinic_id) {
       await fetchClinicData(userData.clinic_id)
     }
-    // Note: Admin users will see "EZ MedTech" branding, no clinic data needed
+    // Fetch full doctor profile (includes phone number)
+    if (type === 'doctor' && userData?.id) {
+      await fetchDoctorData(userData.id, userData)
+    }
+    // Note: Admin users will see "EZ MedTech" branding, no clinic/doctor data needed
 
     setIsAuthenticated(true)
-    setCurrentPage("appointments")
+    setCurrentPage(type === 'admin' ? 'dashboard' : 'appointments')
   }
 
   const handleLogout = () => {
@@ -224,7 +359,7 @@ export default function App() {
       case "dashboard":
         return (
           <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminAnalyticsPage onPageChange={setCurrentPage} /> : <DoctorAnalyticsPage onPageChange={setCurrentPage} />}
+            {isAdmin ? <AdminAnalyticsPage onPageChange={navigateToPage} /> : <DoctorAnalyticsPage onPageChange={navigateToPage} />}
           </Suspense>
         )
       case "patients":
@@ -248,7 +383,7 @@ export default function App() {
       case "doctors":
         return (
           <Suspense fallback={<LoadingFallback />}>
-            {isAdmin ? <AdminDoctorsPage /> : <DoctorPatientsPage />}
+            {isAdmin ? <AdminDoctorsPage pageParams={pageParams} /> : <DoctorPatientsPage />}
           </Suspense>
         )
       case "front-desk":
@@ -273,6 +408,12 @@ export default function App() {
         return (
           <Suspense fallback={<LoadingFallback />}>
             <DoctorCalendarIntegrations />
+          </Suspense>
+        )
+      case "mfa-settings":
+        return (
+          <Suspense fallback={<LoadingFallback />}>
+            {isAdmin ? <AdminMFASettingsPage onPageChange={navigateToPage} /> : <DoctorAppointmentPage />}
           </Suspense>
         )
       default:
@@ -311,52 +452,16 @@ export default function App() {
 
   return (
     <CountsProvider>
-      <SidebarProvider
-        style={
-          {
-            "--sidebar-width": "calc(var(--spacing) * 64)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          } as React.CSSProperties
-        }
-      >
-        <Suspense fallback={
-          <div className="w-64 bg-background border-r animate-pulse">
-            <div className="h-16 border-b"></div>
-            <div className="p-4 space-y-2">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-8 bg-muted rounded"></div>
-              ))}
-            </div>
-          </div>
-        }>
-          <AppSidebar
-            variant="floating"
-            onPageChange={setCurrentPage}
-            currentPage={currentPage}
-            onLogout={handleLogout}
-            clinicData={clinicData}
-            userData={userData}
-            userType={userType}
-          />
-        </Suspense>
-        <main className="flex-1">
-          <Suspense fallback={
-            <div className="h-16 bg-background border-b animate-pulse flex items-center px-4">
-              <div className="h-8 w-32 bg-muted rounded"></div>
-            </div>
-          }>
-            <AppHeader currentPage={currentPage} userType={userType} />
-          </Suspense>
-          <div className="flex flex-1 flex-col">
-            <div className="@container/main flex flex-1 flex-col my-2">
-              <div className="flex flex-col">
-                {renderContent()}
-
-              </div>
-            </div>
-          </div>
-        </main>
-      </SidebarProvider>
+      <AppContent
+        currentPage={currentPage}
+        pageParams={pageParams}
+        navigateToPage={navigateToPage}
+        handleLogout={handleLogout}
+        clinicData={clinicData}
+        userData={userData}
+        userType={userType}
+        renderContent={renderContent}
+      />
     </CountsProvider>
   )
 }

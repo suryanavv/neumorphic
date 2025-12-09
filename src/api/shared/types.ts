@@ -35,6 +35,16 @@ export interface Patient {
   email?: string
   clinic_id?: number
   status?: string
+  guardians?: Guardian[]
+}
+
+export interface Guardian {
+  id: number
+  clinic_id: number
+  first_name: string
+  last_name: string
+  dob: string
+  relationship_to_patient: string
 }
 
 export interface Doctor {

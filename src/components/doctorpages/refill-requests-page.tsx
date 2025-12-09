@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { IconUserCircle } from "@tabler/icons-react"
 import { AuthStorage } from "@/api/auth"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
@@ -53,10 +52,6 @@ export function RefillRequestsPage() {
     } catch {
       return dateString || 'N/A'
     }
-  }
-
-  const getPatientId = (request: any) => {
-    return request.patient_id || request.patient?.id || 'N/A'
   }
 
   const getPatientName = (request: any) => {
@@ -165,10 +160,10 @@ export function RefillRequestsPage() {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 z-10 bg-card">
                   <tr className="border-b-2 border-muted/90 bg-muted/10">
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[90px]">Patient ID</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[150px]">Patient Name</th>
+                    {/* <th className="text-left font-medium py-3 px-1.5 min-w-[90px]">Patient ID</th> */}
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[125px]">Patient Name</th>
                     <th className="text-left font-medium py-3 px-1.5 min-w-[115px]">Patient Phone</th>
-                    <th className="text-left font-medium py-3 px-1.5 min-w-[120px]">Caller Name</th>
+                    <th className="text-left font-medium py-3 px-1.5 min-w-[120px]">Guardian Name</th>
                     <th className="text-left font-medium py-3 px-1.5 min-w-[70px]">Relationship</th>
                     <th className="text-left font-medium py-3 px-1.5 min-w-[205px]">Details</th>
                     <th className="text-left font-medium py-3 px-1.5 min-w-[150px]">Pharmacy Name</th>
@@ -179,10 +174,10 @@ export function RefillRequestsPage() {
                 <tbody className="divide-y-2 divide-muted/90">
                   {requests.map((request, index) => (
                     <tr key={request.id || index} className="hover:bg-muted/30 transition-colors">
-                      <td className="py-3 px-1.5 text-sm font-medium">{getPatientId(request)}</td>
+                      {/* <td className="py-3 px-1.5 text-sm font-medium">{getPatientId(request)}</td> */}
                       <td className="py-3 px-1.5 font-medium text-sm">
                         <div className="flex items-center gap-1">
-                          <IconUserCircle className="w-5 h-5" />
+                          {/* <IconUserCircle className="w-5 h-5" /> */}
                           {getPatientName(request)}
                         </div>
                       </td>

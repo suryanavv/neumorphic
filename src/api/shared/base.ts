@@ -1,7 +1,5 @@
 import { AuthStorage } from "../auth"
 
-const API_BASE_URL = 'https://staging-api.clinqly.ai'
-
 export class BaseAPI {
   protected static getAuthHeaders(): HeadersInit {
     const token = AuthStorage.getToken()
@@ -12,7 +10,7 @@ export class BaseAPI {
   }
 
   protected static getBaseUrl(): string {
-    return API_BASE_URL
+    return import.meta.env.VITE_API_BASE_URL
   }
 
   protected static async handleResponse<T>(response: Response): Promise<T> {

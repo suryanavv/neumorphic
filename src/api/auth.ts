@@ -1,4 +1,6 @@
-const API_BASE_URL = 'https://staging-api.clinqly.ai'
+const getApiBaseUrl = (): string => {
+  return import.meta.env.VITE_API_BASE_URL
+}
 
 export interface LoginRequest {
   email: string
@@ -30,12 +32,40 @@ export interface SSOLoginResponse {
   token_type: string
 }
 
+export interface AdminLoginAsDoctorRequest {
+  doctor_id: number
+}
+
+export interface AdminLoginAsDoctorResponse {
+  message: string
+  doctor: any
+  access_token: string
+}
+
 export class AuthAPI {
   private static async makeRequest(endpoint: string, data: any): Promise<any> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Network error' }))
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`)
+    }
+
+    return response.json()
+  }
+
+  private static async makeAuthenticatedRequest(endpoint: string, data: any): Promise<any> {
+    const response = await fetch(`${getApiBaseUrl()}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${AuthStorage.getToken()}`,
       },
       body: JSON.stringify(data),
     })
@@ -60,12 +90,16 @@ export class AuthAPI {
     return this.makeRequest('/dashboard/auth/sso-login', data)
   }
 
+  static async adminLoginAsDoctor(data: AdminLoginAsDoctorRequest): Promise<AdminLoginAsDoctorResponse> {
+    return this.makeAuthenticatedRequest('/dashboard/auth/admin/login-as-doctor', data)
+  }
+
   // Token validation - we can use this to check if a stored token is still valid
   static async validateToken(token: string): Promise<boolean> {
     try {
       // Try to make a request to a protected endpoint to validate the token
       // Using clinics endpoint which is simpler and should be protected
-      const response = await fetch(`${API_BASE_URL}/dashboard/clinics`, {
+      const response = await fetch(`${getApiBaseUrl()}/dashboard/clinics`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -99,6 +133,7 @@ export class AuthStorage {
   private static readonly USER_TYPE_KEY = 'user_type'
   private static readonly USER_DATA_KEY = 'user_data'
   private static readonly CLINIC_DATA_KEY = 'clinic_data'
+  private static readonly ADMIN_IMPERSONATING_KEY = 'admin_impersonating'
 
   static setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token)
@@ -151,11 +186,24 @@ export class AuthStorage {
     localStorage.removeItem(this.CLINIC_DATA_KEY)
   }
 
+  static setAdminImpersonating(isImpersonating: boolean): void {
+    localStorage.setItem(this.ADMIN_IMPERSONATING_KEY, isImpersonating.toString())
+  }
+
+  static isAdminImpersonating(): boolean {
+    return localStorage.getItem(this.ADMIN_IMPERSONATING_KEY) === 'true'
+  }
+
+  static removeAdminImpersonating(): void {
+    localStorage.removeItem(this.ADMIN_IMPERSONATING_KEY)
+  }
+
   static clearAll(): void {
     this.removeToken()
     this.removeUserType()
     this.removeUserData()
     this.removeClinicData()
+    this.removeAdminImpersonating()
   }
 
   static isAuthenticated(): boolean {

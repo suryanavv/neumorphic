@@ -51,7 +51,7 @@ const logsConfig = {
     { key: "cancelled", title: "Cancelled", icon: "IconX" },
     { key: "failed", title: "Failed", icon: "IconExclamationCircle" }
   ],
-  tableTitle: "All Call Logs",
+  tableTitle: "Total Call Logs",
   filters: [
     { label: "All Time", value: "all-time" },
     { label: "Today", value: "today" },
@@ -176,7 +176,7 @@ export function LogsPage() {
 
   // Get filter title
   const getFilterTitle = () => {
-    if (!statusFilter || statusFilter === 'total') return `All Call Logs (${timeFilteredLogs.length})`
+    if (!statusFilter || statusFilter === 'total') return `Total Call Logs (${timeFilteredLogs.length})`
     const card = logsConfig.summaryCards.find(c => c.key === statusFilter)
     return `${card?.title || 'Filtered'} Call Logs (${filteredLogs.length})`
   }

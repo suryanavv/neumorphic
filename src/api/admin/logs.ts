@@ -7,7 +7,7 @@ export class AdminLogsAPI extends BaseAPI {
    */
   static async getLogs(filters?: LogFilters): Promise<CallLog[]> {
     const queryString = this.buildQueryString(filters || {})
-    const url = `${this.getBaseUrl()}/dashboard/admin/logs${queryString ? `?${queryString}` : ''}`
+    const url = `${this.getBaseUrl()}/dashboard/logs${queryString ? `?${queryString}` : ''}`
 
     const response = await fetch(url, {
       method: 'GET',
@@ -30,7 +30,7 @@ export class AdminLogsAPI extends BaseAPI {
    */
   static async getTranscript(logId: string): Promise<TranscriptTurn[]> {
     const response = await fetch(
-      `${this.getBaseUrl()}/dashboard/admin/logs/${logId}/transcript`,
+      `${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`,
       {
         method: 'GET',
         headers: this.getAuthHeaders(),
@@ -43,6 +43,12 @@ export class AdminLogsAPI extends BaseAPI {
       return data
     } else if (data.transcript && Array.isArray(data.transcript)) {
       return data.transcript
+                .filter((turn: any) => turn.message !== null)
+                .map((turn: any) => ({
+                    speaker: turn.role === 'agent' ? 'A' : 'P',
+                    label: turn.role === 'agent' ? 'Assistant' : 'Patient',
+                    text: turn.message
+                }))
     }
 
     return []

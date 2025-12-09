@@ -1,6 +1,10 @@
 import {
   IconDotsVertical,
   IconLogout,
+  IconMail,
+  IconStethoscope,
+  IconPhone,
+  IconShield,
 } from "@tabler/icons-react"
 
 import {
@@ -26,6 +30,8 @@ import {
 export function NavUser({
   user,
   onLogout,
+  onPageChange,
+  userType,
 }: {
   user: {
     name: string
@@ -35,6 +41,8 @@ export function NavUser({
     phone?: string
   }
   onLogout?: () => void
+  onPageChange?: (page: string) => void
+  userType?: 'admin' | 'doctor'
 }) {
   const { isMobile } = useSidebar()
 
@@ -63,7 +71,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg neumorphic-card"
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-64 rounded-lg neumorphic-card"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -73,27 +81,42 @@ export function NavUser({
                 <Avatar className="h-10 w-10 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
                   <AvatarFallback className="rounded-lg">
-                  {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                </AvatarFallback>
+                    {user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">
+                  <span className="truncate text-xs flex items-center gap-1">
+                    <IconMail className="w-3 h-3" />
                     {user.email}
                   </span>
                   {user.role && (
-                    <span className="truncate text-xs">
+                    <span className="truncate text-xs flex items-center gap-1">
+                      <IconStethoscope className="w-3 h-3" />
                       {user.role}
                     </span>
                   )}
                   {user.phone && (
-                    <span className="truncate text-xs">
+                    <span className="truncate text-xs flex items-center gap-1">
+                      <IconPhone className="w-3 h-3" />
                       {user.phone}
                     </span>
                   )}
                 </div>
               </div>
             </DropdownMenuLabel>
+            {userType === 'admin' && onPageChange && (
+              <>
+                <DropdownMenuSeparator className="neumorphic-inset mx-2" />
+                <DropdownMenuItem
+                  onClick={() => onPageChange("mfa-settings")}
+                  className="neumorphic-soft neumorphic-hover neumorphic-active focus:neumorphic-pressed cursor-pointer"
+                >
+                  <IconShield />
+                  MFA Settings
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuSeparator className="neumorphic-inset mx-2" />
             <DropdownMenuItem
               onClick={onLogout}

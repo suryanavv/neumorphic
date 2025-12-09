@@ -1,57 +1,444 @@
-import { useState } from "react"
-import { IconArrowLeft, IconUserCircle, IconStethoscope } from "@tabler/icons-react"
+import { useState, useEffect } from "react"
+import { IconArrowLeft, IconChevronRight, IconUserCircle, IconStethoscope, IconX, IconFilter } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select"
+import { AdminDoctorsAPI } from "@/api/admin/doctors"
+import { AdminAppointmentsAPI } from "@/api/admin/appointments"
+import { AuthAPI, AuthStorage } from "@/api/auth"
+import { useCounts } from "@/contexts/counts-context"
 
-export function DoctorsPage() {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
-  const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
+// Doctor Appointments Modal Component
+function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: () => void }) {
+  const [selectedDate, setSelectedDate] = useState<number | null>(null)
+  const [currentMonth, setCurrentMonth] = useState(11)
+  const [currentYear, setCurrentYear] = useState(2025)
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Mock doctors data for admin view
-  const doctors = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      department: "Cardiology",
-      email: "sarah.johnson@clinic.com",
-      phone: "+1-555-0123",
-      clinic_id: 1,
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      department: "Neurology",
-      email: "michael.chen@clinic.com",
-      phone: "+1-555-0124",
-      clinic_id: 1,
-      status: "Active"
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Davis",
-      department: "Pediatrics",
-      email: "emily.davis@clinic.com",
-      phone: "+1-555-0125",
-      clinic_id: 2,
-      status: "Active"
-    }
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ]
 
-  const handleViewProfile = (doctor: any) => {
-    setSelectedDoctor(doctor)
-    setViewMode('profile')
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+  // Set current date as default on component mount
+  useEffect(() => {
+    const today = new Date()
+    setSelectedDate(today.getDate())
+    setCurrentMonth(today.getMonth() + 1)
+    setCurrentYear(today.getFullYear())
+  }, [])
+
+  // Fetch appointments for this doctor
+  useEffect(() => {
+    const fetchDoctorAppointments = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = await AdminAppointmentsAPI.getAllAppointments({ doctor_id: doctor.id })
+        console.log('Doctor appointments:', response)
+
+        // Handle API response structure
+        let appointmentsArray: any[] = []
+        if (response && typeof response === 'object' && !Array.isArray(response) && Array.isArray((response as any).appointments)) {
+          appointmentsArray = (response as any).appointments
+        } else if (Array.isArray(response)) {
+          appointmentsArray = response
+        } else {
+          console.warn('Unexpected API response structure:', response)
+          appointmentsArray = []
+        }
+
+        setAppointments(appointmentsArray)
+      } catch (err) {
+        console.error('Failed to fetch doctor appointments:', err)
+        setError(err instanceof Error ? err.message : 'Failed to load appointments')
+        setAppointments([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDoctorAppointments()
+  }, [doctor.id])
+
+  // Generate calendar grid
+  const generateCalendarGrid = (month: number, year: number) => {
+    const firstDay = new Date(year, month - 1, 1).getDay()
+    const daysInMonth = new Date(year, month, 0).getDate()
+    const daysInPrevMonth = new Date(year, month - 1, 0).getDate()
+
+    const calendar: Array<any> = []
+
+    // Previous month days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      calendar.push({
+        date: daysInPrevMonth - i,
+        isCurrentMonth: false,
+        isToday: false,
+        hasAppointments: false,
+        appointments: []
+      })
+    }
+
+    // Current month days
+    const today = new Date()
+    const isCurrentMonth = month === today.getMonth() + 1 && year === today.getFullYear()
+
+    for (let date = 1; date <= daysInMonth; date++) {
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`
+      const dayAppointments = Array.isArray(appointments) ? appointments.filter(apt => {
+        const aptDate = new Date(apt.appointment_time).toISOString().split('T')[0]
+        return aptDate === dateStr
+      }) : []
+      const hasAppointments = dayAppointments.length > 0
+      const isToday = isCurrentMonth && date === today.getDate()
+
+      calendar.push({
+        date,
+        isCurrentMonth: true,
+        isToday,
+        hasAppointments,
+        appointments: dayAppointments
+      })
+    }
+
+    // Next month days to fill the grid
+    const remainingCells = 42 - calendar.length
+    for (let date = 1; date <= remainingCells; date++) {
+      calendar.push({
+        date,
+        isCurrentMonth: false,
+        isToday: false,
+        hasAppointments: false,
+        appointments: []
+      })
+    }
+
+    return calendar
   }
+
+  const handleDateClick = (date: number, isCurrentMonth: boolean) => {
+    if (isCurrentMonth) {
+      setSelectedDate(date)
+    }
+  }
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 1) {
+      setCurrentMonth(12)
+      setCurrentYear(currentYear - 1)
+    } else {
+      setCurrentMonth(currentMonth - 1)
+    }
+    setSelectedDate(null)
+  }
+
+  const handleNextMonth = () => {
+    if (currentMonth === 12) {
+      setCurrentMonth(1)
+      setCurrentYear(currentYear + 1)
+    } else {
+      setCurrentMonth(currentMonth + 1)
+    }
+    setSelectedDate(null)
+  }
+
+  const getSelectedDateAppointments = () => {
+    if (!selectedDate) return []
+    const selectedDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(selectedDate).padStart(2, '0')}`
+    const selected = Array.isArray(appointments) ? appointments.filter(apt => {
+      const aptDate = new Date(apt.appointment_time).toISOString().split('T')[0]
+      return aptDate === selectedDateStr
+    }) : []
+    return selected.sort((a, b) => new Date(a.appointment_time).getTime() - new Date(b.appointment_time).getTime())
+  }
+
+  const getStatusStyle = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-100 neumorphic-inset'
+      case 'in progress':
+        return 'bg-yellow-100 neumorphic-inset'
+      case 'scheduled':
+        return 'bg-blue-100 neumorphic-inset'
+      case 'cancelled':
+        return 'bg-red-100 neumorphic-inset'
+      default:
+        return 'bg-muted neumorphic-inset'
+    }
+  }
+
+  const calendarGrid = generateCalendarGrid(currentMonth, currentYear)
+  const selectedDateAppointments = getSelectedDateAppointments()
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50 p-4" onClick={onClose}>
+      <div className="bg-background neumorphic-pressed rounded-lg w-full max-w-6xl mx-auto max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold">Appointments for {doctor.name}</h2>
+              <p className="text-sm text-muted-foreground">{doctor.department} Department</p>
+            </div>
+            <Button
+              onClick={onClose}
+              className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+            >
+              <IconX className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading appointments...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !loading && (
+            <div className="flex items-center justify-center h-64">
+              <div className="text-center">
+                <div className="text-red-500 mb-4">
+                  <p className="font-medium">Failed to load appointments</p>
+                  <p className="text-sm text-muted-foreground mt-1">{error}</p>
+                </div>
+                <Button onClick={() => window.location.reload()}>
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          {!loading && !error && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Calendar */}
+              <div className="col-span-12 lg:col-span-5">
+                <div className="neumorphic-inset rounded-lg p-4">
+                  {/* Calendar Header */}
+                  <div className="flex items-center gap-2 mb-4 px-6 justify-center">
+                    <Button
+                      onClick={handlePrevMonth}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                    >
+                      <IconArrowLeft className="w-3 h-3" />
+                    </Button>
+                    <h3 className="text-sm font-semibold flex-1 text-center">
+                      {months[currentMonth - 1]} {currentYear}
+                    </h3>
+                    <Button
+                      onClick={handleNextMonth}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                    >
+                      <IconChevronRight className="w-3 h-3" />
+                    </Button>
+                  </div>
+
+                  {/* Week Days Header */}
+                  <div className="grid grid-cols-7 gap-1 px-6 mb-2">
+                    {weekDays.map((day) => (
+                      <div key={day} className="text-center text-xs font-medium neumorphic-inset px-1 py-1 rounded">
+                        {day.charAt(0)}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Calendar Grid */}
+                  <div className="grid grid-cols-7 gap-1 p-6">
+                    {calendarGrid.map((day, index) => (
+                      <div
+                        key={index}
+                        onClick={() => day.isCurrentMonth ? handleDateClick(day.date, day.isCurrentMonth) : undefined}
+                        className={`
+                          calendar-cell relative rounded-lg cursor-pointer neumorphic
+                          w-full min-h-0 flex flex-col justify-center items-center
+                          ${day.isCurrentMonth
+                            ? selectedDate === day.date
+                              ? 'neumorphic-pressed shadow-inner border-1 border-primary'
+                              : 'neumorphic'
+                            : 'neumorphic-inset opacity-50 cursor-not-allowed'
+                          }
+                          ${day.isToday && day.isCurrentMonth ? 'ring-2 ring-primary ring-inset' : ''}
+                        `}
+                        style={{ aspectRatio: '1' }}
+                      >
+                        <div className="text-sm font-bold text-center leading-tight">
+                          {day.date}
+                        </div>
+                        {day.appointments.length > 0 && day.isCurrentMonth && (
+                          <div className="-mt-1">
+                            <div className="appointment-badge inline-flex items-center justify-center text-xs font-medium rounded-full neumorphic-inset bg-primary/10 border border-primary/20 px-1">
+                              {day.appointments.length}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Appointments Table */}
+              <div className="col-span-12 lg:col-span-7">
+                <div className="neumorphic-inset rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">
+                      {selectedDate ? new Date(currentYear, currentMonth - 1, selectedDate).toLocaleDateString() : 'Select a date'}
+                    </h3>
+                    <span className="text-sm text-muted-foreground">
+                      {selectedDateAppointments.length} appointments
+                    </span>
+                  </div>
+
+                  {selectedDateAppointments.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b-2 border-muted/90">
+                            <th className="text-left font-medium py-2 px-2">Time</th>
+                            <th className="text-left font-medium py-2 px-2">Patient</th>
+                            <th className="text-left font-medium py-2 px-2">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-muted/90">
+                          {selectedDateAppointments.map((apt: any, index: number) => (
+                            <tr key={index} className="hover:bg-muted/30 transition-colors">
+                              <td className="py-2 px-2 font-medium">
+                                {new Date(apt.appointment_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td className="py-2 px-2">
+                                <div className="flex items-center gap-2">
+                                  <IconUserCircle className="w-4 h-4" />
+                                  <span className="text-sm">{apt.patient_name}</span>
+                                </div>
+                              </td>
+                              <td className="py-2 px-2">
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusStyle(apt.status)}`}>
+                                  {apt.status}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-sm text-muted-foreground">No appointments scheduled for this date</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+interface DoctorsPageProps {
+  pageParams?: { department?: string }
+}
+
+export function DoctorsPage({ pageParams }: DoctorsPageProps) {
+  const { setDoctorsCount } = useCounts()
+  const [selectedDoctor, setSelectedDoctor] = useState<any | null>(null)
+  const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
+  const [showAppointmentsModal, setShowAppointmentsModal] = useState(false)
+  const [selectedDoctorForAppointments, setSelectedDoctorForAppointments] = useState<any | null>(null)
+  const [loggingInAs, setLoggingInAs] = useState<number | null>(null)
+
+  // API state
+  const [doctors, setDoctors] = useState<any[]>([])
+  const [appointments, setAppointments] = useState<any[]>([])
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(pageParams?.department || 'all')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch doctors and appointments data
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Fetch doctors and appointments in parallel
+        const [doctorsResponse, appointmentsResponse] = await Promise.all([
+          AdminDoctorsAPI.getAllDoctors(),
+          AdminAppointmentsAPI.getAllAppointments()
+        ])
+
+        setDoctors(doctorsResponse)
+        setAppointments(appointmentsResponse)
+
+        // Update doctors count in context for header
+        setDoctorsCount(doctorsResponse.length)
+      } catch (err) {
+        console.error('Error fetching doctors data:', err)
+        setError('Failed to load doctors data')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Calculate unique patient count for each doctor
+  const getPatientCount = (doctorId: number) => {
+    const doctorAppointments = appointments.filter(apt => apt.doctor_id === doctorId)
+    const uniquePatients = new Set(doctorAppointments.map(apt => apt.patient_id))
+    return uniquePatients.size
+  }
+
+  // Get unique departments for filter dropdown
+  const departments = Array.from(new Set(doctors.map(doctor => doctor.department).filter(Boolean)))
+
+  // Filter doctors based on selected department
+  const filteredDoctors = selectedDepartment === 'all'
+    ? doctors
+    : doctors.filter(doctor => doctor.department === selectedDepartment)
 
   const handleCloseProfile = () => {
     setSelectedDoctor(null)
     setViewMode('table')
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle form submission
-    setShowAddForm(false)
+  const handleLoginAsDoctor = async (doctorId: number) => {
+    try {
+      setLoggingInAs(doctorId)
+
+      const response = await AuthAPI.adminLoginAsDoctor({ doctor_id: doctorId })
+
+      // Update auth state
+      AuthStorage.setToken(response.access_token)
+      AuthStorage.setUserType('doctor')
+      AuthStorage.setUserData(response.doctor)
+      AuthStorage.setClinicData(response.doctor.clinic)
+      AuthStorage.setAdminImpersonating(true)
+
+      // Redirect to doctor dashboard (refresh the page to update the app state)
+      window.location.reload()
+    } catch (error) {
+      console.error('Failed to login as doctor:', error)
+      alert('Failed to login as doctor. Please try again.')
+    } finally {
+      setLoggingInAs(null)
+    }
   }
 
   if (viewMode === 'profile' && selectedDoctor) {
@@ -112,35 +499,75 @@ export function DoctorsPage() {
     )
   }
 
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg">Loading doctors...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">Error: {error}</div>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-          Doctors Management
-        </h1>
-        <Button onClick={() => setShowAddForm(true)}>
-          Add Doctor
-        </Button>
+    <div className="space-y-4 px-4 lg:px-6">
+      {/* Department Filter */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+        
+
+
+
+        {/* Department Filter */}
+        <div className="flex items-center gap-2">
+        <IconFilter className="w-4 h-4" />
+        <span className="text-sm font-medium">Filter by:</span>
+          <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+            <SelectTrigger className="w-48 neumorphic-inset">
+              <SelectValue placeholder="Select department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All departments</SelectItem>
+              {departments.map((department) => (
+                <SelectItem key={department} value={department}>
+                  {department}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Doctors Table */}
       <div className="neumorphic-inset rounded-lg p-4 border-0">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[77vh] overflow-y-auto bg-card rounded-lg">
           <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b-2 border-muted/90">
-                <th className="text-left font-medium py-3 px-2">Name</th>
+            <thead className="sticky top-0 z-10 bg-card">
+              <tr className="border-b-2 border-muted/90 bg-muted/10">
+                <th className="text-left font-medium py-3 px-2">Doctor Name</th>
                 <th className="text-left font-medium py-3 px-2">Department</th>
                 <th className="text-left font-medium py-3 px-2">Email</th>
-                <th className="text-left font-medium py-3 px-2">Phone</th>
-                <th className="text-left font-medium py-3 px-2">Clinic</th>
-                <th className="text-left font-medium py-3 px-2">Status</th>
+                <th className="text-left font-medium py-3 px-2">Patients</th>
                 <th className="text-left font-medium py-3 px-2">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y-2 divide-muted/90">
-              {doctors.map((doctor) => (
+              {filteredDoctors.map((doctor) => (
                 <tr key={doctor.id} className="hover:bg-muted/30 transition-colors">
                   <td className="py-3 px-2">
                     <div className="flex items-center gap-2">
@@ -150,25 +577,26 @@ export function DoctorsPage() {
                   </td>
                   <td className="py-3 px-2">{doctor.department}</td>
                   <td className="py-3 px-2">{doctor.email}</td>
-                  <td className="py-3 px-2">{doctor.phone}</td>
-                  <td className="py-3 px-2">{doctor.clinic_id}</td>
+                  <td className="py-3 px-2 font-medium">{getPatientCount(doctor.id)}</td>
                   <td className="py-3 px-2">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      doctor.status === 'Active'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {doctor.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewProfile(doctor)}
-                    >
-                      View
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        onClick={() => {
+                          setSelectedDoctorForAppointments(doctor)
+                          setShowAppointmentsModal(true)
+                        }}
+                      >
+                        View Appointments
+                      </Button>
+                      <Button
+                        onClick={() => handleLoginAsDoctor(doctor.id)}
+                        disabled={loggingInAs === doctor.id}
+                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loggingInAs === doctor.id ? 'Logging in...' : 'Login'}
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -177,61 +605,15 @@ export function DoctorsPage() {
         </div>
       </div>
 
-      {/* Add Doctor Form Modal would go here */}
-      {showAddForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-background p-6 rounded-lg max-w-md w-full mx-4">
-            <h2 className="text-xl font-semibold mb-4">Add New Doctor</h2>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">Name</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md"
-                  placeholder="Dr. John Doe"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Department</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md"
-                  placeholder="Cardiology"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  className="w-full p-2 border rounded-md"
-                  placeholder="doctor@clinic.com"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
-                <input
-                  type="tel"
-                  className="w-full p-2 border rounded-md"
-                  placeholder="+1-555-0123"
-                  required
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit">Add Doctor</Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowAddForm(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
+      {/* Doctor Appointments Modal */}
+      {showAppointmentsModal && selectedDoctorForAppointments && (
+        <DoctorAppointmentsModal
+          doctor={selectedDoctorForAppointments}
+          onClose={() => {
+            setShowAppointmentsModal(false)
+            setSelectedDoctorForAppointments(null)
+          }}
+        />
       )}
     </div>
   )

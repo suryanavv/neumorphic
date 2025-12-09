@@ -219,13 +219,18 @@ export function AppSidebar({
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData ? {
-          name: userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User',
-          email: userData.email || '',
-          avatar: userData.avatar || '',
-          role: userData.role || (userData.department ? `Dr. ${userData.department}` : ''),
-          phone: userData.phone_number || userData.mobile_phone || userData.phone || userData.contact_number || ''
-        } : transformedData.user} onLogout={onLogout} />
+        <NavUser
+          user={userData ? {
+            name: userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim() || 'User',
+            email: userData.email || '',
+            avatar: userData.avatar || '',
+            role: userData.role || (userData.department ? `Dr. ${userData.department}` : ''),
+            phone: userData.phone_number || userData.mobile_phone || userData.phone || userData.contact_number || clinicData?.phone_number || ''
+          } : transformedData.user}
+          onLogout={onLogout}
+          onPageChange={onPageChange}
+          userType={userType}
+        />
       </SidebarFooter>
     </Sidebar>
   )

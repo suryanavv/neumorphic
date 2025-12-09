@@ -2,10 +2,13 @@ import { useState, useEffect } from "react"
 import { IconArrowLeft, IconUserCircle, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateUS, formatDateUSShort } from "@/lib/date"
 import { AuthStorage } from "@/api/auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
+import { AdminClinicsAPI } from "@/api/admin"
 import type { Patient } from "@/api/shared/types"
+import type { Clinic } from "@/api/admin/clinics"
 
 type PatientDocument = {
   document_id?: number
@@ -20,13 +23,6 @@ type PatientDocument = {
 }
 
 interface ExtendedPatient extends Patient {
-  guardians?: Array<{
-    id: number
-    first_name: string
-    last_name: string
-    dob: string
-    relationship_to_patient?: string
-  }>
   documents?: PatientDocument[]
   appointments?: {
     upcoming: Array<{
@@ -56,14 +52,21 @@ export function PatientsPage() {
   const [selectedPatient, setSelectedPatient] = useState<ExtendedPatient | null>(null)
   const [viewMode, setViewMode] = useState<'table' | 'profile'>('table')
 
+  // Helper function to filter name input - only allow letters, spaces, hyphens, and apostrophes
+  const filterNameInput = (value: string): string => {
+    return value.replace(/[^a-zA-Z\s'-]/g, '')
+  }
+
   // Form state for adding patient
   const [formData, setFormData] = useState({
     firstName: '',
+    middleName: '',
     lastName: '',
     dob: '',
     phoneNumber: '',
     // Guardian fields
     guardianFirstName: '',
+    guardianMiddleName: '',
     guardianLastName: '',
     guardianDob: '',
     guardianRelationship: ''
@@ -72,11 +75,16 @@ export function PatientsPage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   
   // API state
-  const [patients, setPatients] = useState<Patient[]>([])
+  const [allPatients, setAllPatients] = useState<Patient[]>([])
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
+
+  // Clinics state
+  const [clinics, setClinics] = useState<Clinic[]>([])
+  const [selectedClinicId, setSelectedClinicId] = useState<string>('all')
   
   // Document loading states
   const [downloadingDoc, setDownloadingDoc] = useState<number | null>(null)
@@ -100,9 +108,9 @@ export function PatientsPage() {
   // Toast notification state
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
 
-  // Fetch patients list
+  // Fetch clinics and patients data on component mount
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
         setError(null)
@@ -115,18 +123,36 @@ export function PatientsPage() {
           return
         }
 
-        const patientsData = await DoctorPatientsAPI.getAllPatients(clinicId)
-        setPatients(patientsData)
+        // Fetch both clinics and patients in parallel
+        const [clinicsData, patientsData] = await Promise.all([
+          AdminClinicsAPI.getAllClinics().catch(() => []),
+          DoctorPatientsAPI.getAllPatients(clinicId) // Doctors only see their clinic's patients
+        ])
+
+        setClinics(clinicsData)
+        setAllPatients(patientsData)
+        setFilteredPatients(patientsData) // Initially show all patients from their clinic
       } catch (err) {
-        console.error('Failed to fetch patients:', err)
+        console.error('Failed to fetch data:', err)
         setError(err instanceof Error ? err.message : 'Failed to load patients')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchPatients()
+    fetchData()
   }, [])
+
+  // Filter patients when clinic selection changes (for doctors, this might filter within their clinic)
+  useEffect(() => {
+    if (selectedClinicId === 'all') {
+      setFilteredPatients(allPatients)
+    } else {
+      const clinicId = parseInt(selectedClinicId)
+      const filtered = allPatients.filter(patient => patient.clinic_id === clinicId)
+      setFilteredPatients(filtered)
+    }
+  }, [selectedClinicId, allPatients])
 
   // Transform appointment data from API format to display format
   const transformAppointments = (appointments: any[]): { upcoming: any[], past: any[] } => {
@@ -259,6 +285,7 @@ export function PatientsPage() {
       const patientData: any = {
         clinic_id: clinicId,
         first_name: formData.firstName.trim(),
+        middle_name: formData.middleName.trim(),
         last_name: formData.lastName.trim(),
         dob: formData.dob,
         phone: cleanPhoneNumber,
@@ -269,6 +296,7 @@ export function PatientsPage() {
         patientData.guardian = {
           clinic_id: clinicId,
           first_name: formData.guardianFirstName.trim(),
+          middle_name: formData.guardianMiddleName.trim(),
           last_name: formData.guardianLastName.trim(),
           dob: formData.guardianDob,
           relationship_to_patient: formData.guardianRelationship
@@ -279,15 +307,18 @@ export function PatientsPage() {
       
       // Refresh patients list
       const patientsData = await DoctorPatientsAPI.getAllPatients(clinicId)
-      setPatients(patientsData)
+      setAllPatients(patientsData)
+      // filteredPatients will be updated automatically by the useEffect
       
       // Reset form and close modal
       setFormData({
         firstName: '',
+        middleName: '',
         lastName: '',
         dob: '',
         phoneNumber: '',
         guardianFirstName: '',
+        guardianMiddleName: '',
         guardianLastName: '',
         guardianDob: '',
         guardianRelationship: ''
@@ -1317,11 +1348,30 @@ export function PatientsPage() {
     <div className="space-y-6">
       {/* Patients Table */}
       <div className="px-4 lg:px-6">
-        {/* Header with title and Add Patient button */}
+        {/* Header with title, filter and Add Patient button */}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">
-            Patients {loading ? '' : `(${patients.length})`}
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-semibold">
+              Patients {loading ? '' : `(${filteredPatients.length})`}
+            </h2>
+            {/* Provider Filter */}
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium">Filter by Provider:</label>
+              <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
+                <SelectTrigger className="w-[200px] neumorphic-inset">
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All providers</SelectItem>
+                  {clinics.map((clinic) => (
+                    <SelectItem key={clinic.id} value={clinic.id.toString()}>
+                      {clinic.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
           <Button
             onClick={() => setShowAddForm(true)}
             className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
@@ -1348,7 +1398,7 @@ export function PatientsPage() {
         {!loading && (
           <div className="neumorphic-inset rounded-lg p-4 border-0">
           <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-              {patients.length > 0 ? (
+              {filteredPatients.length > 0 ? (
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-card">
                 <tr className="border-b-2 border-muted/90 bg-muted/10">
@@ -1360,7 +1410,7 @@ export function PatientsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-muted/90">
-                {patients.map((patient) => (
+                {filteredPatients.map((patient) => (
                   <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
                     <td className="py-3 px-2 font-medium text-sm">{patient.id}</td>
                     <td className="py-3 px-2">
@@ -1403,10 +1453,12 @@ export function PatientsPage() {
               setSubmitError(null)
               setFormData({
         firstName: '',
+        middleName: '',
         lastName: '',
         dob: '',
         phoneNumber: '',
         guardianFirstName: '',
+        guardianMiddleName: '',
         guardianLastName: '',
         guardianDob: '',
         guardianRelationship: ''
@@ -1415,7 +1467,7 @@ export function PatientsPage() {
           }}
         >
           <div
-            className="neumorphic-pressed rounded-lg w-full max-w-md mx-auto max-h-[90vh] bg-background"
+            className="neumorphic-pressed rounded-lg w-full max-w-xl mx-auto max-h-[90vh] bg-background"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-5 overflow-y-auto max-h-[85vh]">
@@ -1427,10 +1479,12 @@ export function PatientsPage() {
                     setSubmitError(null)
                     setFormData({
         firstName: '',
+        middleName: '',
         lastName: '',
         dob: '',
         phoneNumber: '',
         guardianFirstName: '',
+        guardianMiddleName: '',
         guardianLastName: '',
         guardianDob: '',
         guardianRelationship: ''
@@ -1450,7 +1504,8 @@ export function PatientsPage() {
               )}
 
               <form onSubmit={handleAddPatient} className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                {/* Name Fields - All in one row */}
+                <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium uppercase tracking-wide mb-2">
                       First Name *
@@ -1459,9 +1514,28 @@ export function PatientsPage() {
                       type="text"
                       placeholder="Enter first name"
                       value={formData.firstName}
-                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, firstName: filteredValue })
+                      }}
                       className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
+                      disabled={submitting}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Middle Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter middle name"
+                      value={formData.middleName}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, middleName: filteredValue })
+                      }}
+                      className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                       disabled={submitting}
                     />
                   </div>
@@ -1473,7 +1547,10 @@ export function PatientsPage() {
                       type="text"
                       placeholder="Enter last name"
                       value={formData.lastName}
-                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      onChange={(e) => {
+                        const filteredValue = filterNameInput(e.target.value)
+                        setFormData({ ...formData, lastName: filteredValue })
+                      }}
                       className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
                       disabled={submitting}
@@ -1481,52 +1558,55 @@ export function PatientsPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                    Date of Birth *
-                  </label>
-                  <DatePicker
-                    value={formData.dob}
-                    onChange={(value) => setFormData({ ...formData, dob: value })}
-                    placeholder="MM/DD/YYYY"
-                    disabled={submitting}
-                    maxDate={new Date()} // Prevent future dates
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium uppercase tracking-wide mb-2">
-                    Phone Number *
-                  </label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
-                      +1
-                    </span>
-                    <input
-                      type="tel"
-                      placeholder="(XXX) XXX-XXXX"
-                      value={formData.phoneNumber}
-                      onChange={(e) => {
-                        let value = e.target.value.replace(/\D/g, '') // Remove non-digits
-                        if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
-
-                        // Format as (XXX) XXX-XXXX
-                        if (value.length >= 6) {
-                          value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
-                        } else if (value.length >= 3) {
-                          value = `(${value.slice(0, 3)}) ${value.slice(3)}`
-                        } else if (value.length > 0) {
-                          value = `(${value}`
-                        }
-
-                        setFormData({ ...formData, phoneNumber: value })
-                      }}
-                      className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                      required
+                {/* DOB and Phone Number - In one row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Date of Birth *
+                    </label>
+                    <DatePicker
+                      value={formData.dob}
+                      onChange={(value) => setFormData({ ...formData, dob: value })}
+                      placeholder="MM/DD/YYYY"
                       disabled={submitting}
-                      maxLength={14} // (XXX) XXX-XXXX = 14 characters
+                      required
+                      maxDate={new Date()} // Prevent future dates
+                      className="w-full"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium uppercase tracking-wide mb-2">
+                      Phone Number *
+                    </label>
+                    <div className="flex gap-2">
+                      <span className="inline-flex items-center px-3 py-2 text-sm neumorphic-inset rounded-l-md bg-muted/50 border-r border-border">
+                        +1
+                      </span>
+                      <input
+                        type="tel"
+                        placeholder="(XXX) XXX-XXXX"
+                        value={formData.phoneNumber}
+                        onChange={(e) => {
+                          let value = e.target.value.replace(/\D/g, '') // Remove non-digits
+                          if (value.length > 10) value = value.slice(0, 10) // Limit to 10 digits
+
+                          // Format as (XXX) XXX-XXXX
+                          if (value.length >= 6) {
+                            value = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6)}`
+                          } else if (value.length >= 3) {
+                            value = `(${value.slice(0, 3)}) ${value.slice(3)}`
+                          } else if (value.length > 0) {
+                            value = `(${value}`
+                          }
+
+                          setFormData({ ...formData, phoneNumber: value })
+                        }}
+                        className="flex-1 px-3 py-2 text-sm neumorphic-inset rounded-r-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                        required
+                        disabled={submitting}
+                        maxLength={14} // (XXX) XXX-XXXX = 14 characters
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1535,7 +1615,8 @@ export function PatientsPage() {
                   <div className="space-y-2 pt-3 border-t border-border">
                       <h2 className="mb-2 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Guardian Name Fields - All in one row */}
+                    <div className="grid grid-cols-3 gap-2">
                       <div>
                         <label className="block text-xs font-medium uppercase tracking-wide mb-1">
                           Guardian First Name *
@@ -1544,9 +1625,28 @@ export function PatientsPage() {
                           type="text"
                           placeholder="Enter guardian first name"
                           value={formData.guardianFirstName}
-                          onChange={(e) => setFormData({ ...formData, guardianFirstName: e.target.value })}
+                          onChange={(e) => {
+                            const filteredValue = filterNameInput(e.target.value)
+                            setFormData({ ...formData, guardianFirstName: filteredValue })
+                          }}
                           className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                           required={isPatientMinor(formData.dob)}
+                          disabled={submitting}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                          Guardian Middle Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="Enter guardian middle name"
+                          value={formData.guardianMiddleName}
+                          onChange={(e) => {
+                            const filteredValue = filterNameInput(e.target.value)
+                            setFormData({ ...formData, guardianMiddleName: filteredValue })
+                          }}
+                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                           disabled={submitting}
                         />
                       </div>
@@ -1558,7 +1658,10 @@ export function PatientsPage() {
                           type="text"
                           placeholder="Enter guardian last name"
                           value={formData.guardianLastName}
-                          onChange={(e) => setFormData({ ...formData, guardianLastName: e.target.value })}
+                          onChange={(e) => {
+                            const filteredValue = filterNameInput(e.target.value)
+                            setFormData({ ...formData, guardianLastName: filteredValue })
+                          }}
                           className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                           required={isPatientMinor(formData.dob)}
                           disabled={submitting}
@@ -1566,42 +1669,45 @@ export function PatientsPage() {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                        Guardian Date of Birth *
-                      </label>
-                      <DatePicker
-                        value={formData.guardianDob}
-                        onChange={(value) => setFormData({ ...formData, guardianDob: value })}
-                        placeholder="MM/DD/YYYY"
-                        disabled={submitting}
-                        maxDate={new Date()} // Prevent future dates
-                        className="w-full"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                        Relationship to Patient *
-                      </label>
-                      <select
-                        value={formData.guardianRelationship}
-                        onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
-                        className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                        required={isPatientMinor(formData.dob)}
-                        disabled={submitting}
-                      >
-                        <option value="">Select relationship</option>
-                        <option value="Parent">Parent</option>
-                        <option value="Spouse">Spouse (Husband/Wife)</option>
-                        <option value="Guardian">Legal Guardian</option>
-                        <option value="Grandparent">Grandparent</option>
-                        <option value="Sibling">Sibling</option>
-                        <option value="Aunt">Aunt</option>
-                        <option value="Uncle">Uncle</option>
-                        <option value="Cousin">Cousin</option>
-                        <option value="Other">Other</option>
-                      </select>
+                    {/* Guardian DOB and Relationship - In one row */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                          Guardian Date of Birth *
+                        </label>
+                        <DatePicker
+                          value={formData.guardianDob}
+                          onChange={(value) => setFormData({ ...formData, guardianDob: value })}
+                          placeholder="MM/DD/YYYY"
+                          required={isPatientMinor(formData.dob)}
+                          disabled={submitting}
+                          maxDate={new Date()} // Prevent future dates
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium uppercase tracking-wide mb-1">
+                          Relationship to Patient *
+                        </label>
+                        <select
+                          value={formData.guardianRelationship}
+                          onChange={(e) => setFormData({ ...formData, guardianRelationship: e.target.value })}
+                          className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                          required={isPatientMinor(formData.dob)}
+                          disabled={submitting}
+                        >
+                          <option value="">Select relationship</option>
+                          <option value="Parent">Parent</option>
+                          <option value="Spouse">Spouse (Husband/Wife)</option>
+                          <option value="Guardian">Legal Guardian</option>
+                          <option value="Grandparent">Grandparent</option>
+                          <option value="Sibling">Sibling</option>
+                          <option value="Aunt">Aunt</option>
+                          <option value="Uncle">Uncle</option>
+                          <option value="Cousin">Cousin</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1614,10 +1720,12 @@ export function PatientsPage() {
                       setSubmitError(null)
                       setFormData({
         firstName: '',
+        middleName: '',
         lastName: '',
         dob: '',
         phoneNumber: '',
         guardianFirstName: '',
+        guardianMiddleName: '',
         guardianLastName: '',
         guardianDob: '',
         guardianRelationship: ''

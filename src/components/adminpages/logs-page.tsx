@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar } from "@tabler/icons-react"
+import { useState, useEffect } from "react"
+import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconArrowLeft } from "@tabler/icons-react"
 import {
   Select,
   SelectContent,
@@ -8,6 +8,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { AdminLogsAPI, AdminClinicsAPI } from "@/api/admin"
+import type { Clinic } from "@/api/admin/clinics"
+import type { CallLog, TranscriptTurn } from "@/api/shared/types"
 
 // Sentiment Analysis Component
 const SentimentRating = ({ rating }: { rating: number }) => {
@@ -36,7 +39,7 @@ const SentimentRating = ({ rating }: { rating: number }) => {
   )
 }
 
-// Static logs config
+// Logs config
 const logsConfig = {
   pageTitle: "Call Logs",
   summaryCards: [
@@ -49,143 +52,470 @@ const logsConfig = {
   filters: [
     { label: "All Time", value: "all-time" },
     { label: "Today", value: "today" },
-    { label: "This Week", value: "week" },
-    { label: "This Month", value: "month" }
+    { label: "This Week", value: "this-week" },
+    { label: "This Month", value: "this-month" }
   ]
-}
-
-// Static summary stats for admin (demo purposes)
-// TODO: Replace with admin API when available
-const callLogsSummaryStats = {
-  total: 92,
-  scheduled: 47,
-  rescheduled: 3,
-  cancelled: 0,
-  failed: 30
-}
-
-// Static sample call logs for admin (demo purposes)
-// TODO: Replace with admin API when available
-const sampleCallLogs = [
-  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:13 PM", duration: "1:41", action: "View Conversation", status: "scheduled" },
-  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:11 PM", duration: "2:05", action: "View Conversation", status: "scheduled" },
-  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 5:09 PM", duration: "1:23", action: "View Conversation", status: "scheduled" },
-  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:47 PM", duration: "4:36", action: "View Conversation", status: "scheduled" },
-  { from: "+12245549339", to: "+14709448601", startTime: "Nov 17, 2025 4:37 PM", duration: "0:17", action: "View Conversation", status: "failed" },
-  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:23 PM", duration: "2:56", action: "View Conversation", status: "scheduled" },
-  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:22 PM", duration: "0:48", action: "View Conversation", status: "failed" },
-  { from: "+12674679709", to: "+14709448601", startTime: "Nov 17, 2025 4:16 PM", duration: "1:09", action: "View Conversation", status: "scheduled" }
-]
-
-type CallLog = typeof sampleCallLogs[number]
-
-type TranscriptTurn = {
-  speaker: "A" | "P"
-  label: "Assistant" | "Patient"
-  text: string
-}
-
-const sampleTranscriptByFrom: Record<string, TranscriptTurn[]> = {
-  "+14848001179": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hello, Thank you for calling Martha's Clinic. If this is a medical emergency, please hang up now and dial Nine One One. Otherwise, how can I help you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hey, hi, my name is Radha Krishna and my date of birth was January 1st, 1996. Can you please book an appointment for me?",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text: "Hey Radha! Thanks for that information. Let me just pull up your record real quick.",
-    },
-  ],
-  "+12245549339": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hi, thanks for calling Martha's Clinic. This is the front desk. How can I help you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hi, I just wanted to confirm my upcoming appointment and the time.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Absolutely, I'd be happy to confirm that for you. Can I have your full name and date of birth?",
-    },
-  ],
-  "+12674679709": [
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Hello, you've reached Martha's Clinic. How can I assist you today?",
-    },
-    {
-      speaker: "P",
-      label: "Patient",
-      text:
-        "Hi, I have a question about my bill and the payment options available.",
-    },
-    {
-      speaker: "A",
-      label: "Assistant",
-      text:
-        "Of course, I can help with that. Can I have your name and the date of your last visit?",
-    },
-  ],
-}
-
-const getTranscriptForLog = (log: CallLog): TranscriptTurn[] => {
-  return sampleTranscriptByFrom[log.from] ?? []
 }
 
 export function LogsPage() {
+  // View mode: 'clinics' for overview table, 'clinic-logs' for individual clinic logs, 'all-logs' for all calls, 'bot-logs' for ezmedtech bot
+  const [viewMode, setViewMode] = useState<'clinics' | 'clinic-logs' | 'all-logs' | 'bot-logs'>('clinics')
+  const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null)
+
+  // Clinics and logs data
+  const [clinics, setClinics] = useState<Clinic[]>([])
+  const [allLogs, setAllLogs] = useState<CallLog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Search functionality
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Individual clinic logs view state
   const [timeFilter, setTimeFilter] = useState("all-time")
-  // Default to "total" so the first card is active and table shows all
   const [statusFilter, setStatusFilter] = useState<string>("total")
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null)
   const [showTranscript, setShowTranscript] = useState(false)
+  const [transcript, setTranscript] = useState<TranscriptTurn[]>([])
+  const [loadingTranscript, setLoadingTranscript] = useState(false)
 
-  // Generate random sentiment ratings for demo purposes (whole numbers 1-5)
-  const getRandomSentiment = (index: number) => {
-    const ratings = [1, 2, 3, 4, 5]
-    return ratings[Math.floor((index + Math.random() * 10) % 5)]
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [clinicsData, logsData] = await Promise.all([
+        AdminClinicsAPI.getAllClinics(),
+        AdminLogsAPI.getLogs()
+      ])
+      setClinics(clinicsData)
+      setAllLogs(logsData)
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load data')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const tableHeaders = [
-    { key: 'from', label: 'From' },
-    { key: 'startTime', label: 'Start Time' },
-    { key: 'duration', label: 'Call Duration' },
-    { key: 'sentiment', label: 'Sentiment' },
-    { key: 'action', label: 'Actions' }
-  ]
+  // Handle view logs for a specific clinic
+  const handleViewClinicLogs = (clinic: Clinic) => {
+    setSelectedClinic(clinic)
+    setViewMode('clinic-logs')
+  }
 
-  // Filter logs based on status (treat "total" as all)
-  const filteredLogs = statusFilter && statusFilter !== 'total'
-    ? sampleCallLogs.filter(log => log.status === statusFilter)
-    : sampleCallLogs
+  // Handle back to clinics overview
+  const handleBackToClinics = () => {
+    setViewMode('clinics')
+    setSelectedClinic(null)
+    setSelectedLog(null)
+    setShowTranscript(false)
+    setTranscript([])
+  }
 
-  // Get filter title
+  // Get total calls count (all logs)
+  const getTotalCallCount = () => {
+    return allLogs.length
+  }
+
+  // Get Ezmedtech Bot calls count (logs with null to_phone)
+  const getBotCallCount = () => {
+    return allLogs.filter(log => log.to_phone === null).length
+  }
+
+  // Handle view all logs
+  const handleViewAllLogs = () => {
+    setViewMode('all-logs')
+  }
+
+  // Handle view bot logs
+  const handleViewBotLogs = () => {
+    setViewMode('bot-logs')
+  }
+
+  // Get logs for selected clinic or special views
+  const getClinicLogs = () => {
+    if (viewMode === 'all-logs') {
+      return allLogs
+    }
+    if (viewMode === 'bot-logs') {
+      return allLogs.filter(log => log.to_phone === null)
+    }
+    if (!selectedClinic) return []
+    return allLogs.filter(log => log.to_phone === selectedClinic.phone_number)
+  }
+
+  // Calculate total calls for each clinic
+  const getClinicCallCount = (clinic: Clinic) => {
+    return allLogs.filter(log => log.to_phone === clinic.phone_number).length
+  }
+
+  // Handle transcript viewing
+  const handleViewTranscript = async (log: CallLog) => {
+    setSelectedLog(log)
+    setShowTranscript(true)
+    setLoadingTranscript(true)
+    try {
+      const fetchedTranscript = await AdminLogsAPI.getTranscript(log.id.toString())
+      setTranscript(fetchedTranscript)
+    } catch (error) {
+      console.error("Failed to fetch transcript:", error)
+      setTranscript([])
+    } finally {
+      setLoadingTranscript(false)
+    }
+  }
+
+  // Helper to filter logs by time range
+  const filterLogsByTime = (logs: CallLog[], timeFilter: string): CallLog[] => {
+    const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+    switch (timeFilter) {
+      case 'today': {
+        return logs.filter(log => {
+          const logDate = new Date(log.start_time)
+          return logDate >= today
+        })
+      }
+      case 'this-week': {
+        const weekStart = new Date(today)
+        weekStart.setDate(today.getDate() - today.getDay())
+        return logs.filter(log => {
+          const logDate = new Date(log.start_time)
+          return logDate >= weekStart
+        })
+      }
+      case 'this-month': {
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+        return logs.filter(log => {
+          const logDate = new Date(log.start_time)
+          return logDate >= monthStart
+        })
+      }
+      case 'all-time':
+      default:
+        return logs
+    }
+  }
+
+  // Helper to calculate duration
+  const calculateDuration = (start: string, end: string) => {
+    const startTime = new Date(start).getTime()
+    const endTime = new Date(end).getTime()
+    const durationMs = endTime - startTime
+    const minutes = Math.floor(durationMs / 60000)
+    const seconds = Math.floor((durationMs % 60000) / 1000)
+    return `${minutes}m ${seconds}s`
+  }
+
+  // Helper to format date
+  const formatDate = (dateString: string) => {
+    // Ensure UTC if no timezone specified (API returns UTC)
+    const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
+    const date = new Date(utcString)
+
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    }).format(date)
+  }
+
+  // Handle download transcript
+  const handleDownloadTranscript = () => {
+    if (!selectedLog || !transcript.length) return
+
+    const blob = new Blob([JSON.stringify(transcript, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `transcript-${selectedLog.call_id || selectedLog.id}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  // Apply time filter to clinic logs
+  const timeFilteredLogs = filterLogsByTime(getClinicLogs(), timeFilter)
+
+  // Calculate summary stats from time-filtered logs
+  const summaryStats = (() => ({
+    total: timeFilteredLogs.length,
+    scheduled: timeFilteredLogs.filter(l => l.status === 'scheduled').length,
+    rescheduled: timeFilteredLogs.filter(l => l.status === 'rescheduled').length,
+    cancelled: timeFilteredLogs.filter(l => l.status === 'cancelled').length,
+    failed: timeFilteredLogs.filter(l => l.status === 'failed' || l.status === 'failure').length,
+  }))()
+
+  // Apply status filter to time-filtered logs
+  const filteredLogs = (() => {
+    if (!statusFilter || statusFilter === 'total') return timeFilteredLogs
+    if (statusFilter === 'failed') {
+      return timeFilteredLogs.filter(log => log.status === 'failed' || log.status === 'failure')
+    }
+    return timeFilteredLogs.filter(log => log.status === statusFilter)
+  })()
+
+  // Get filter title for clinic logs view
   const getFilterTitle = () => {
-    if (!statusFilter || statusFilter === 'total') return `All Call Logs (${sampleCallLogs.length})`
+    if (!statusFilter || statusFilter === 'total') return `Total Call Logs (${timeFilteredLogs.length})`
     const card = logsConfig.summaryCards.find(c => c.key === statusFilter)
     return `${card?.title || 'Filtered'} Call Logs (${filteredLogs.length})`
   }
 
+  // Filter clinics based on search query
+  const filteredClinics = clinics.filter(clinic =>
+    clinic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    clinic.phone_number.includes(searchQuery)
+  )
+
+
+  // Render clinics overview
+  if (viewMode === 'clinics') {
+    return (
+      <div className="space-y-3">
+
+        {/* Search Input */}
+        <div className="px-4 lg:px-6">
+            <input
+              type="text"
+              placeholder="Search clinics by name or phone..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 text-sm neumorphic-inset rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+            />
+        </div>
+
+        {/* Clinics Table */}
+        <div className="px-4 lg:px-6">
+          <div className="neumorphic-inset rounded-lg p-4 border-0">
+            {error && (
+              <div className="text-center py-8 text-destructive">
+                <p className="text-sm mb-2">{error}</p>
+                <Button
+                  onClick={fetchData}
+                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                >
+                  Try Again
+                </Button>
+              </div>
+            )}
+
+            {!error && (
+              <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 z-10 bg-card">
+                    <tr className="border-b-2 border-muted/90 bg-muted/10">
+                      <th className="text-left font-medium py-3 px-4">Logo</th>
+                      <th className="text-left font-medium py-3 px-4">Clinic Name</th>
+                      <th className="text-left font-medium py-3 px-4">Address</th>
+                      <th className="text-left font-medium py-3 px-4">Phone Number</th>
+                      <th className="text-left font-medium py-3 px-4">Total Calls</th>
+                      <th className="text-left font-medium py-3 px-4">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y-2 divide-muted/90">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center">
+                          <div className="text-sm">Loading clinics...</div>
+                        </td>
+                      </tr>
+                    ) : filteredClinics.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center">
+                          <div className="text-sm">No clinics found</div>
+                        </td>
+                      </tr>
+                    ) : (
+                      <>
+                        {/* All Calls Row */}
+                        <tr className="hover:bg-muted/30 transition-colors bg-muted/5">
+                          <td className="py-3 px-4">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                              <IconPhone className="w-4 h-4" />
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div>
+                              <span className="text-sm font-medium">All Calls</span>
+                              <div className="text-xs text-muted-foreground">View all call logs across all clinics</div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm">-</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm">-</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm font-medium">{getTotalCallCount()}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Button
+                              onClick={handleViewAllLogs}
+                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            >
+                              View Logs
+                            </Button>
+                          </td>
+                        </tr>
+
+                        {/* Ezmedtech Bot Row */}
+                        <tr className="hover:bg-muted/30 transition-colors bg-muted/5">
+                          <td className="py-3 px-4">
+                            <div className="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center text-xs font-bold text-secondary">
+                              🤖
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <div>
+                              <span className="text-sm font-medium">Ezmedtech Bot</span>
+                              <div className="text-xs text-muted-foreground">Chatbot interactions from ezmedtech.ai</div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm">-</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm">-</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="text-sm font-medium">{getBotCallCount()}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Button
+                              onClick={handleViewBotLogs}
+                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                            >
+                              View Logs
+                            </Button>
+                          </td>
+                        </tr>
+
+                        {/* Clinics Rows */}
+                        {filteredClinics.map((clinic) => (
+                          <tr key={clinic.id} className="hover:bg-muted/30 transition-colors">
+                            <td className="py-3 px-4">
+                              {clinic.logo_url ? (
+                                <img
+                                  src={clinic.logo_url}
+                                  alt={clinic.name}
+                                  className="w-8 h-8 rounded-full object-cover"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold">
+                                  {clinic.name[0].toUpperCase()}
+                                </div>
+                              )}
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm font-medium">{clinic.name}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm">{clinic.address}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm">{clinic.phone_number}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <span className="text-sm font-medium">{getClinicCallCount(clinic)}</span>
+                            </td>
+                            <td className="py-3 px-4">
+                              <Button
+                                onClick={() => handleViewClinicLogs(clinic)}
+                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              >
+                                View Logs
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Render individual clinic logs view (same as doctor logs page)
   return (
     <div className="space-y-6">
+      {/* Back Button */}
+      <div className="px-4 lg:px-6">
+        <Button
+          onClick={handleBackToClinics}
+          size="sm"
+          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+        >
+          <IconArrowLeft className="w-4 h-4" />
+          <span className="text-sm font-medium">Back to Clinics</span>
+        </Button>
+      </div>
+
+      {/* Header for different view modes */}
+      <div className="px-4 lg:px-6">
+        <div className="neumorphic-inset rounded-lg p-4">
+          <div className="flex items-center gap-4">
+            {viewMode === 'all-logs' ? (
+              <>
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary">
+                  <IconPhone className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">All Calls</h2>
+                  <p className="text-sm text-muted-foreground">View all call logs across all clinics</p>
+                </div>
+              </>
+            ) : viewMode === 'bot-logs' ? (
+              <>
+                <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center text-lg font-bold text-secondary">
+                  🤖
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold">Ezmedtech Bot</h2>
+                  <p className="text-sm text-muted-foreground">Chatbot interactions from ezmedtech.ai</p>
+                </div>
+              </>
+            ) : (
+              <>
+                {selectedClinic?.logo_url ? (
+                  <img
+                    src={selectedClinic.logo_url}
+                    alt={selectedClinic.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-lg font-bold">
+                    {selectedClinic?.name[0].toUpperCase()}
+                  </div>
+                )}
+                <div>
+                  <h2 className="text-xl font-bold">{selectedClinic?.name}</h2>
+                  <p className="text-sm text-muted-foreground">{selectedClinic?.phone_number}</p>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Summary Cards */}
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
@@ -212,7 +542,6 @@ export function LogsPage() {
 
             const isActive = statusFilter === card.key
             const handleCardClick = () => {
-              // Clicking an active card resets back to "total" (all)
               setStatusFilter(isActive ? 'total' : card.key)
             }
 
@@ -229,7 +558,7 @@ export function LogsPage() {
                     {card.title}
                   </div>
                   <div className={`text-2xl font-bold tabular-nums sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${getCardColor(card.key)}`}>
-                    {callLogsSummaryStats[card.key as keyof typeof callLogsSummaryStats]}
+                    {summaryStats[card.key as keyof typeof summaryStats] || 0}
                   </div>
                 </div>
               </div>
@@ -245,15 +574,14 @@ export function LogsPage() {
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">Filter by:</span>
             <Select value={timeFilter} onValueChange={setTimeFilter}>
-              <SelectTrigger className="w-32 neumorphic-pressed">
+              <SelectTrigger className="w-32 neumorphic-inset">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="neumorphic-pressed flex flex-col gap-2">
+              <SelectContent>
                 {logsConfig.filters.map((filter) => (
                   <SelectItem
                     key={filter.value}
                     value={filter.value}
-                    className="neumorphic-pressed my-1.5"
                   >
                     {filter.label}
                   </SelectItem>
@@ -267,60 +595,70 @@ export function LogsPage() {
       {/* Call Logs Table */}
       <div className="-mt-2 px-4 lg:px-6">
         <div className="neumorphic-inset rounded-lg p-4 border-0">
-
-          {/* Table */}
           <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
             <table className="w-full text-sm">
               <thead className="sticky top-0 z-10 bg-card">
                 <tr className="border-b-2 border-muted/90 bg-muted/10">
-                  {tableHeaders.map((header) => (
-                    <th key={header.key} className="text-left font-medium py-3 px-4">
-                      {header.label}
-                    </th>
-                  ))}
+                  <th className="text-left font-medium py-3 px-4">From</th>
+                  <th className="text-left font-medium py-3 px-4">Start Time</th>
+                  <th className="text-left font-medium py-3 px-4">Call Duration</th>
+                  <th className="text-left font-medium py-3 px-4">Sentiment</th>
+                  <th className="text-left font-medium py-3 px-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-muted/90">
-                {filteredLogs.map((log, index) => (
-                  <tr key={index} className="hover:bg-muted/30 transition-colors">
-                    <td className="py-3 px-4">
-                      <span className="text-sm font-medium">{log.from}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-sm">{log.startTime}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="text-sm">{log.duration}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <SentimentRating rating={getRandomSentiment(index)} />
-                    </td>
-                    <td className="py-3 px-4">
-                      <Button
-                        onClick={() => {
-                          setSelectedLog(log)
-                          setShowTranscript(true)
-                        }}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
-                      >
-                        View Conversation
-                      </Button>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                      Loading logs...
                     </td>
                   </tr>
-                ))}
+                ) : filteredLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
+                      No logs found.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredLogs.map((log, index) => (
+                    <tr key={index} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <span className="text-sm font-medium">{log.from_phone}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm">{formatDate(log.start_time)}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm">{calculateDuration(log.start_time, log.end_time)}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <SentimentRating rating={log.sentiment_score || 0} />
+                      </td>
+                      <td className="py-3 px-4">
+                        <Button
+                          onClick={() => handleViewTranscript(log)}
+                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                        >
+                          View Conversation
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      {/* Conversation Transcript Overlay (custom div, not shadcn Dialog) */}
+      {/* Conversation Transcript Overlay */}
       {showTranscript && selectedLog && (
         <div
           className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-50 p-4"
           onClick={() => {
             setShowTranscript(false)
             setSelectedLog(null)
+            setTranscript([])
           }}
         >
           <div
@@ -331,14 +669,15 @@ export function LogsPage() {
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <h3 className="text-base font-semibold">
-                    Conversational Transcript – <span className="font-mono">{selectedLog.from}</span>
+                    Conversational Transcript – <span className="font-mono">{selectedLog.from_phone}</span>
                   </h3>
                   <p className="text-xs">
-                    Start Time: {selectedLog.startTime} • Duration: {selectedLog.duration}
+                    Start Time: {formatDate(selectedLog.start_time)} • Duration: {calculateDuration(selectedLog.start_time, selectedLog.end_time)}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
+                    onClick={handleDownloadTranscript}
                     className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Download
@@ -348,6 +687,7 @@ export function LogsPage() {
                     onClick={() => {
                       setShowTranscript(false)
                       setSelectedLog(null)
+                      setTranscript([])
                     }}
                   >
                     <IconX className="size-4" />
@@ -356,12 +696,14 @@ export function LogsPage() {
               </div>
 
               <div className="max-h-[60vh] overflow-y-auto bg-card rounded-lg p-4 text-sm space-y-3">
-                {getTranscriptForLog(selectedLog).length === 0 ? (
+                {loadingTranscript ? (
+                  <p className="text-sm text-center py-4">Loading transcript...</p>
+                ) : transcript.length === 0 ? (
                   <p className="text-sm">
                     No transcript available for this call yet.
                   </p>
                 ) : (
-                  getTranscriptForLog(selectedLog).map((turn, idx) => (
+                  transcript.map((turn, idx) => (
                     <div key={idx} className="flex gap-3">
                       <div className="flex flex-col items-center mt-0.5">
                         <span
