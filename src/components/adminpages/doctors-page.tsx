@@ -188,7 +188,7 @@ function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: ()
             </div>
             <Button
               onClick={onClose}
-              className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+              className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
             >
               <IconX className="w-4 h-4" />
             </Button>
@@ -462,7 +462,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
         <div className="neumorphic-inset p-6 rounded-lg">
           <div className="flex items-start gap-6">
             <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
-              <IconStethoscope className="w-12 h-12 text-primary" />
+              <IconStethoscope className="w-12 h-12 text-foreground" />
             </div>
             <div className="flex-1 space-y-4">
               <div>
@@ -581,7 +581,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                   <td className="py-3 px-2">
                     <div className="flex gap-2">
                       <Button
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                         onClick={() => {
                           setSelectedDoctorForAppointments(doctor)
                           setShowAppointmentsModal(true)
@@ -592,7 +592,7 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
                       <Button
                         onClick={() => handleLoginAsDoctor(doctor.id)}
                         disabled={loggingInAs === doctor.id}
-                        className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {loggingInAs === doctor.id ? 'Logging in...' : 'Login'}
                       </Button>

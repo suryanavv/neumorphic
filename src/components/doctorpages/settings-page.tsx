@@ -431,7 +431,7 @@ export function SettingsPage() {
           <TabsContent value="working-hours" className="mt-3 max-w-md">
             {isLoadingWorkingHours ? (
               <div className="flex items-center justify-center py-8">
-                <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
                 <span className="ml-2 text-sm">Loading working hours...</span>
               </div>
             ) : (
@@ -465,7 +465,7 @@ export function SettingsPage() {
 
                       <Button
                         onClick={() => handleToggleClosed(index)}
-                        className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${day.isClosed ? "" : "hover:bg-destructive"
+                        className={`ml-auto w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${day.isClosed ? "" : "hover:bg-destructive"
                           }`}
                       >
                         {day.isClosed ? "Open" : "Close"}
@@ -478,7 +478,7 @@ export function SettingsPage() {
                   <Button
                     onClick={handleSaveWorkingHours}
                     disabled={isSavingWorkingHours}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     {isSavingWorkingHours ? (
                       <>
@@ -503,7 +503,7 @@ export function SettingsPage() {
                 </span>
                 <Button
                   onClick={openCreateOffDayDialog}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
                   <IconPlus className="w-3 h-3" />
                   Add Off Day
@@ -513,7 +513,7 @@ export function SettingsPage() {
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
                 {isLoadingOffDays ? (
                   <div className="flex items-center justify-center py-8">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="ml-2 text-sm">Loading off days...</span>
                   </div>
                 ) : (
@@ -558,7 +558,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("off-days")
                                       openEditOffDayDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                   >
                                     <IconPencil className="w-3 h-3" />
                                   </Button>
@@ -567,7 +567,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("off-days")
                                       openDeleteDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                   >
                                     <IconTrash className="w-3 h-3" />
                                   </Button>
@@ -595,7 +595,7 @@ export function SettingsPage() {
                 <Button
                   onClick={handleSyncPublicHolidays}
                   disabled={isSyncingHolidays}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                 >
                   {isSyncingHolidays ? (
                     <>
@@ -614,7 +614,7 @@ export function SettingsPage() {
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
                 {isLoadingOffDays ? (
                   <div className="flex items-center justify-center py-8">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="ml-2 text-sm">Loading holidays...</span>
                   </div>
                 ) : (
@@ -659,7 +659,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("public-holidays")
                                       openEditOffDayDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                   >
                                     <IconPencil className="w-3 h-3" />
                                   </Button>
@@ -668,7 +668,7 @@ export function SettingsPage() {
                                       setActiveSettingsTab("public-holidays")
                                       openDeleteDialog(entry)
                                     }}
-                                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
                                   >
                                     <IconTrash className="w-3 h-3" />
                                   </Button>
@@ -815,7 +815,7 @@ export function SettingsPage() {
               <div className="flex justify-end gap-2 pt-2">
                 <Button
                   type="button"
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   onClick={() => {
                     setIsOffDayDialogOpen(false)
                     resetOffDayForm()
@@ -826,7 +826,7 @@ export function SettingsPage() {
                 <Button
                   type="submit"
                   disabled={isSavingOffDay}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   {isSavingOffDay ? (
                     <>
@@ -891,7 +891,7 @@ export function SettingsPage() {
             <div className="flex justify-end gap-2 pt-4">
               <Button
                 type="button"
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 onClick={() => {
                   setIsDeleteDialogOpen(false)
                   setDeleteTarget(null)
@@ -903,7 +903,7 @@ export function SettingsPage() {
                 type="button"
                 onClick={confirmDeleteOffDay}
                 disabled={isDeletingOffDay}
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
                 {isDeletingOffDay ? (
                   <>

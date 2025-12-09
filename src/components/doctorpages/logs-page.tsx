@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar } from "@tabler/icons-react"
+import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconFilter } from "@tabler/icons-react"
 import {
   Select,
   SelectContent,
@@ -282,18 +282,15 @@ export function LogsPage() {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold tracking-tight">{getFilterTitle()}</h2>
           <div className="flex items-center gap-2">
+            <IconFilter className="w-4 h-4" />
             <span className="text-sm font-medium">Filter by:</span>
             <Select value={timeFilter} onValueChange={setTimeFilter}>
-              <SelectTrigger className="w-32 neumorphic-pressed">
-                <SelectValue />
+              <SelectTrigger className="w-48 neumorphic-inset">
+                <SelectValue placeholder="Select time period" />
               </SelectTrigger>
-              <SelectContent className="neumorphic-pressed flex flex-col gap-2">
+              <SelectContent>
                 {logsConfig.filters.map((filter) => (
-                  <SelectItem
-                    key={filter.value}
-                    value={filter.value}
-                    className="neumorphic-pressed my-1.5"
-                  >
+                  <SelectItem key={filter.value} value={filter.value}>
                     {filter.label}
                   </SelectItem>
                 ))}
@@ -350,7 +347,7 @@ export function LogsPage() {
                       <td className="py-3 px-4">
                         <Button
                           onClick={() => handleViewTranscript(log)}
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           View Conversation
                         </Button>
@@ -391,12 +388,12 @@ export function LogsPage() {
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={handleDownloadTranscript}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Download
                   </Button>
                   <Button
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                     onClick={() => {
                       setShowTranscript(false)
                       setSelectedLog(null)

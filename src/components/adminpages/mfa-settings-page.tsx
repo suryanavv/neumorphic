@@ -134,7 +134,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
             <div className="px-4 lg:px-6">
                 <Button
                     onClick={handleBackToDashboard}
-                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4 neumorphic-pressed text-primary hover:text-primary-foreground px-3 py-2 rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4 neumorphic-pressed text-foreground hover:text-foreground-foreground px-3 py-2 rounded-lg shadow-none cursor-pointer transition-all duration-200"
                 >
                     <IconArrowLeft className="w-4 h-4" />
                     Back to Dashboard
@@ -187,7 +187,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                             <Button
                                 onClick={handleEnableMFA}
                                 disabled={loading}
-                                className="w-full sm:w-auto text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full sm:w-auto text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? "Setting up..." : "Enable MFA"}
                             </Button>
@@ -223,7 +223,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                                         </code>
                                         <Button
                                             onClick={handleCopySecret}
-                                            className="text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground p-2 rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                                            className="text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground p-2 rounded-lg shadow-none cursor-pointer transition-all duration-200"
                                             title="Copy to clipboard"
                                         >
                                             {copied ? (
@@ -267,7 +267,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                                 <Button
                                     onClick={handleVerifyMFA}
                                     disabled={loading || verificationCode.length !== 6}
-                                    className="text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {loading ? "Verifying..." : "Verify & Enable"}
                                 </Button>
@@ -275,7 +275,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                                     onClick={handleCancelSetup}
                                     disabled={loading}
                                     variant="outline"
-                                    className="text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     Cancel
                                 </Button>
@@ -303,7 +303,7 @@ export function MFASettingsPage({ onPageChange }: MFASettingsPageProps) {
                                 onClick={handleDisableMFA}
                                 disabled={loading}
                                 variant="destructive"
-                                className="w-full sm:w-auto text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full sm:w-auto text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {loading ? "Disabling..." : "Disable MFA"}
                             </Button>

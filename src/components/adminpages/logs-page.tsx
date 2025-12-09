@@ -306,7 +306,7 @@ export function LogsPage() {
                 <p className="text-sm mb-2">{error}</p>
                 <Button
                   onClick={fetchData}
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                 >
                   Try Again
                 </Button>
@@ -344,7 +344,7 @@ export function LogsPage() {
                         {/* All Calls Row */}
                         <tr className="hover:bg-muted/30 transition-colors bg-muted/5">
                           <td className="py-3 px-4">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-foreground">
                               <IconPhone className="w-4 h-4" />
                             </div>
                           </td>
@@ -366,7 +366,7 @@ export function LogsPage() {
                           <td className="py-3 px-4">
                             <Button
                               onClick={handleViewAllLogs}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                             >
                               View Logs
                             </Button>
@@ -398,7 +398,7 @@ export function LogsPage() {
                           <td className="py-3 px-4">
                             <Button
                               onClick={handleViewBotLogs}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                             >
                               View Logs
                             </Button>
@@ -436,7 +436,7 @@ export function LogsPage() {
                             <td className="py-3 px-4">
                               <Button
                                 onClick={() => handleViewClinicLogs(clinic)}
-                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                               >
                                 View Logs
                               </Button>
@@ -463,7 +463,7 @@ export function LogsPage() {
         <Button
           onClick={handleBackToClinics}
           size="sm"
-          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
         >
           <IconArrowLeft className="w-4 h-4" />
           <span className="text-sm font-medium">Back to Clinics</span>
@@ -476,7 +476,7 @@ export function LogsPage() {
           <div className="flex items-center gap-4">
             {viewMode === 'all-logs' ? (
               <>
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-foreground">
                   <IconPhone className="w-6 h-6" />
                 </div>
                 <div>
@@ -638,7 +638,7 @@ export function LogsPage() {
                       <td className="py-3 px-4">
                         <Button
                           onClick={() => handleViewTranscript(log)}
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           View Conversation
                         </Button>
@@ -679,12 +679,12 @@ export function LogsPage() {
                 <div className="flex items-center gap-2">
                   <Button
                     onClick={handleDownloadTranscript}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Download
                   </Button>
                   <Button
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                     onClick={() => {
                       setShowTranscript(false)
                       setSelectedLog(null)

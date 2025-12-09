@@ -159,7 +159,7 @@ export function CalendarIntegrations() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+        <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
         <span className="ml-2 text-sm">Loading calendar integrations...</span>
       </div>
     )
@@ -185,7 +185,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowModal(true)}
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Google
@@ -215,7 +215,7 @@ export function CalendarIntegrations() {
               </div>
               <Button
                 onClick={() => setShowMicrosoftModal(true)}
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 inline-flex items-center gap-2"
               >
                 <IconPlus className="w-3 h-3" />
                 Add Microsoft
@@ -266,14 +266,14 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConnectGoogle}
                   disabled={isConnecting}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   {isConnecting ? (
                     <>
@@ -314,14 +314,14 @@ export function CalendarIntegrations() {
               <div className="w-full flex gap-3 pt-3">
                 <Button
                   onClick={() => setShowMicrosoftModal(false)}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConnectMicrosoft}
                   disabled={isConnecting}
-                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="flex-1 w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   {isConnecting ? (
                     <>

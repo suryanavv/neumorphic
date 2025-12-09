@@ -2,14 +2,11 @@ import { useState, useEffect } from "react"
 import { IconArrowLeft, IconUserCircle, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateUS, formatDateUSShort } from "@/lib/date"
 import { getErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
-import { AdminClinicsAPI } from "@/api/admin"
 import type { Patient } from "@/api/shared/types"
-import type { Clinic } from "@/api/admin/clinics"
 
 type PatientDocument = {
   document_id?: number
@@ -83,9 +80,6 @@ export function PatientsPage() {
   const [profileLoading, setProfileLoading] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
 
-  // Clinics state
-  const [clinics, setClinics] = useState<Clinic[]>([])
-  const [selectedClinicId, setSelectedClinicId] = useState<string>('all')
 
   // Document loading states
   const [downloadingDoc, setDownloadingDoc] = useState<number | null>(null)
@@ -124,13 +118,8 @@ export function PatientsPage() {
           return
         }
 
-        // Fetch both clinics and patients in parallel
-        const [clinicsData, patientsData] = await Promise.all([
-          AdminClinicsAPI.getAllClinics().catch(() => []),
-          DoctorPatientsAPI.getAllPatients(clinicId) // Doctors only see their clinic's patients
-        ])
-
-        setClinics(clinicsData)
+        // Fetch patients for this doctor's clinic
+        const patientsData = await DoctorPatientsAPI.getAllPatients(clinicId)
         setAllPatients(patientsData)
         setFilteredPatients(patientsData) // Initially show all patients from their clinic
       } catch (err) {
@@ -144,16 +133,10 @@ export function PatientsPage() {
     fetchData()
   }, [])
 
-  // Filter patients when clinic selection changes (for doctors, this might filter within their clinic)
+  // Doctors see all patients from their clinic
   useEffect(() => {
-    if (selectedClinicId === 'all') {
-      setFilteredPatients(allPatients)
-    } else {
-      const clinicId = parseInt(selectedClinicId)
-      const filtered = allPatients.filter(patient => patient.clinic_id === clinicId)
-      setFilteredPatients(filtered)
-    }
-  }, [selectedClinicId, allPatients])
+    setFilteredPatients(allPatients)
+  }, [allPatients])
 
   // Transform appointment data from API format to display format
   const transformAppointments = (appointments: any[]): { upcoming: any[], past: any[] } => {
@@ -713,7 +696,7 @@ export function PatientsPage() {
                     setSelectedTimeSlot('')
                   }}
                   disabled={scheduling || loadingSlots}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
                 >
                   ×
                 </Button>
@@ -744,7 +727,7 @@ export function PatientsPage() {
 
                 {loadingSlots && (
                   <div className="flex items-center justify-center py-4">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="ml-2 text-sm">Loading available slots...</span>
                   </div>
                 )}
@@ -789,14 +772,14 @@ export function PatientsPage() {
                       setSelectedTimeSlot('')
                     }}
                     disabled={scheduling || loadingSlots}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleScheduleAppointment}
                     disabled={scheduling || loadingSlots || !selectedDate || !selectedTimeSlot}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {scheduling ? (
                       <span className="flex items-center justify-center">
@@ -844,7 +827,7 @@ export function PatientsPage() {
                     setSelectedTimeSlot('')
                   }}
                   disabled={scheduling || loadingSlots}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
                 >
                   ×
                 </Button>
@@ -875,7 +858,7 @@ export function PatientsPage() {
 
                 {loadingSlots && (
                   <div className="flex items-center justify-center py-4">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-primary" />
+                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
                     <span className="ml-2 text-sm">Loading available slots...</span>
                   </div>
                 )}
@@ -921,14 +904,14 @@ export function PatientsPage() {
                       setSelectedTimeSlot('')
                     }}
                     disabled={scheduling || loadingSlots}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleRescheduleAppointmentSubmit}
                     disabled={scheduling || loadingSlots || !selectedDate || !selectedTimeSlot}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {scheduling ? (
                       <span className="flex items-center justify-center">
@@ -977,14 +960,14 @@ export function PatientsPage() {
                     setCancelAppointmentId(null)
                   }}
                   disabled={cancelling}
-                  className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   No, Keep It
                 </Button>
                 <Button
                   onClick={confirmCancelAppointment}
                   disabled={cancelling}
-                  className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {cancelling ? (
                     <span className="flex items-center justify-center">
@@ -1018,7 +1001,7 @@ export function PatientsPage() {
                     ? 'text-green-700 dark:text-green-400'
                     : toast.type === 'error'
                       ? 'text-destructive'
-                      : 'text-primary'
+                      : 'text-foreground'
                   }`}
               >
                 {toast.message}
@@ -1045,7 +1028,7 @@ export function PatientsPage() {
             <Button
               onClick={handleCloseProfile}
               size="sm"
-              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
             >
               <IconArrowLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Back to Patients</span>
@@ -1055,7 +1038,7 @@ export function PatientsPage() {
           {/* Loading State */}
           {profileLoading && (
             <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
+              <IconLoader2 className="w-8 h-8 animate-spin text-foreground" />
             </div>
           )}
 
@@ -1183,7 +1166,7 @@ export function PatientsPage() {
                               <Button
                                 onClick={() => handleViewDocument(doc)}
                                 disabled={isViewing}
-                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                               >
                                 {isViewing ? (
                                   <>
@@ -1197,7 +1180,7 @@ export function PatientsPage() {
                               <Button
                                 onClick={() => handleDownloadDocument(doc)}
                                 disabled={isDownloading}
-                                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                               >
                                 {isDownloading ? (
                                   <>
@@ -1233,7 +1216,7 @@ export function PatientsPage() {
                     </h3>
                     <Button
                       onClick={handleSchedule}
-                      className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                      className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                     >
                       Schedule
                     </Button>
@@ -1256,13 +1239,13 @@ export function PatientsPage() {
                           <div className="flex justify-center items-center gap-3">
                             <Button
                               onClick={() => handleRescheduleAppointment(appointment.appointment_id)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                             >
                               Reschedule
                             </Button>
                             <Button
                               onClick={() => handleCancelAppointment(appointment.appointment_id)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                             >
                               Cancel
                             </Button>
@@ -1325,7 +1308,7 @@ export function PatientsPage() {
                 <div className="flex justify-center items-center">
                   <Button
                     onClick={handleDownloadProfile}
-                    className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Download Profile
                   </Button>
@@ -1346,31 +1329,12 @@ export function PatientsPage() {
         <div className="px-4 lg:px-6">
           {/* Header with title, filter and Add Patient button */}
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-semibold">
-                Patients {loading ? '' : `(${filteredPatients.length})`}
-              </h2>
-              {/* Provider Filter */}
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium">Filter by Provider:</label>
-                <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
-                  <SelectTrigger className="w-[200px] neumorphic-inset">
-                    <SelectValue placeholder="Select provider" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All providers</SelectItem>
-                    {clinics.map((clinic) => (
-                      <SelectItem key={clinic.id} value={clinic.id.toString()}>
-                        {clinic.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            <h2 className="text-lg font-semibold">
+              Patients {loading ? '' : `(${filteredPatients.length})`}
+            </h2>
             <Button
               onClick={() => setShowAddForm(true)}
-              className="w-full text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
+              className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 max-w-[160px]"
             >
               Add Patient
             </Button>
@@ -1379,7 +1343,7 @@ export function PatientsPage() {
           {/* Loading State */}
           {loading && (
             <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="w-8 h-8 animate-spin text-primary" />
+              <IconLoader2 className="w-8 h-8 animate-spin text-foreground" />
             </div>
           )}
 
@@ -1420,7 +1384,7 @@ export function PatientsPage() {
                           <td className="py-3 px-2">
                             <Button
                               onClick={() => handleViewProfile(patient)}
-                              className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                              className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                             >
                               View Profile
                             </Button>
@@ -1487,7 +1451,7 @@ export function PatientsPage() {
                       })
                     }}
                     disabled={submitting}
-                    className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+                    className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
                   >
                     ×
                   </Button>
@@ -1728,14 +1692,14 @@ export function PatientsPage() {
                         })
                       }}
                       disabled={submitting}
-                      className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                      className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                     >
                       Cancel
                     </Button>
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {submitting ? (
                         <span className="flex items-center justify-center">

@@ -151,7 +151,7 @@ export function PatientsPage() {
           <Button
             onClick={handleCloseProfile}
             size="sm"
-            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
           >
             <IconArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Patients</span>
@@ -253,12 +253,12 @@ export function PatientsPage() {
                       </div>
                       <div className="flex gap-2">
                         <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                         >
                           View
                         </Button>
                         <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                         >
                           Download
                         </Button>
@@ -287,7 +287,7 @@ export function PatientsPage() {
                     : ""}
                 </h3>
                 <Button
-                  className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                 >
                   Schedule
                 </Button>
@@ -309,12 +309,12 @@ export function PatientsPage() {
                       </p>
                       <div className="flex justify-center items-center gap-3">
                         <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           Reschedule
                         </Button>
                         <Button
-                          className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
                         >
                           Cancel
                         </Button>
@@ -378,7 +378,7 @@ export function PatientsPage() {
             {/* Action Buttons */}
             <div className="flex justify-center items-center">
               <Button
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
               >
                 Download Profile
               </Button>
@@ -422,7 +422,7 @@ export function PatientsPage() {
               <p className="text-sm mb-2">{error}</p>
               <Button
                 onClick={() => window.location.reload()}
-                className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
               >
                 Try Again
               </Button>
@@ -467,7 +467,7 @@ export function PatientsPage() {
                         <td className="py-3 px-2">
                           <Button
                             onClick={() => handleViewProfile(patient)}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
                           >
                             View Profile
                           </Button>
@@ -515,7 +515,7 @@ export function PatientsPage() {
                       phoneNumber: ''
                     })
                   }}
-                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200"
+                  className="w-8 h-8 flex items-center justify-center text-lg font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200"
                 >
                   ×
                 </Button>
@@ -636,13 +636,13 @@ export function PatientsPage() {
                         phoneNumber: ''
                       })
                     }}
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground hover:bg-destructive rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
+                    className="flex-1 text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2"
                   >
                     Add Patient
                   </Button>
