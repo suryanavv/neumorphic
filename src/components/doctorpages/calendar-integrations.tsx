@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { IconPlus, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import toast from "react-hot-toast"
+import { getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { CalendarAPI } from "@/api/doctor"
 import type { CalendarAccount, CalendarAccountsResponse } from "@/api/doctor"
@@ -127,7 +128,7 @@ export function CalendarIntegrations() {
       toast.success("Primary calendar updated")
     } catch (error) {
       console.error("Failed to set primary:", error)
-      toast.error("Failed to set primary calendar")
+      toast.error(getToastErrorMessage(error, 'data', 'Failed to set primary calendar'))
     } finally {
       setSettingPrimaryId(null)
     }

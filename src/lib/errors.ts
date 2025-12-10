@@ -20,9 +20,11 @@ const HTTP_ERROR_MESSAGES: Record<number, string> = {
 
 // Context-specific error messages for login
 const LOGIN_ERROR_MESSAGES: Record<number, string> = {
+    400: 'Invalid login credentials. Please check your email and password.',
     401: 'Invalid email or password. Please try again.',
     403: 'Your account has been disabled. Please contact support.',
     404: 'Account not found. Please check your email address.',
+    422: 'Please check your email and password format.',
     429: 'Too many login attempts. Please wait a few minutes and try again.',
 }
 
@@ -65,6 +67,11 @@ function isNetworkError(error: unknown): boolean {
  * Extract HTTP status code from error message
  */
 function extractStatusCode(error: unknown): number | null {
+    // First check if the error has a stored status code (from createFriendlyError)
+    if (error instanceof Error && (error as any).statusCode) {
+        return (error as any).statusCode
+    }
+
     if (error instanceof Error) {
         // Match patterns like "HTTP 500:" or "HTTP 401" or "status: 500"
         const httpMatch = error.message.match(/HTTP\s*(\d{3})/i)
@@ -123,7 +130,7 @@ export function getErrorMessage(error: unknown, context: ErrorContext = 'general
 
         // If the message contains HTTP error code patterns, replace with friendly message
         if (/HTTP\s*\d{3}/i.test(message)) {
-            return 'Something went wrong. Please try again later.'
+            return getDefaultMessage(context)
         }
 
         // If message is already user-friendly (no technical jargon), return it
@@ -132,13 +139,28 @@ export function getErrorMessage(error: unknown, context: ErrorContext = 'general
             !message.toLowerCase().includes('status') &&
             !message.toLowerCase().includes('undefined') &&
             !message.toLowerCase().includes('null') &&
+            message.length > 0 &&
             message.length < 200) {
             return message
         }
     }
 
-    // Default fallback message
-    return 'Something went wrong. Please try again later.'
+    // Default fallback message based on context
+    return getDefaultMessage(context)
+}
+
+/**
+ * Get default error message based on context
+ */
+function getDefaultMessage(context: ErrorContext): string {
+    switch (context) {
+        case 'login':
+            return 'Login failed. Please try again.'
+        case 'data':
+            return 'Failed to load data. Please try again.'
+        default:
+            return 'Something went wrong. Please try again later.'
+    }
 }
 
 /**
@@ -153,6 +175,42 @@ export function getLoginErrorMessage(error: unknown): string {
  */
 export function getDataErrorMessage(error: unknown): string {
     return getErrorMessage(error, 'data')
+}
+
+/**
+ * Standardized error display functions to ensure consistency across the app
+ */
+
+/**
+ * Get a standardized error message for toast notifications
+ * @param error - The error to convert
+ * @param context - The context of the error
+ * @param fallbackMessage - Optional fallback message if error processing fails
+ * @returns A user-friendly error message suitable for toast notifications
+ */
+export function getToastErrorMessage(
+    error: unknown,
+    context: ErrorContext = 'general',
+    fallbackMessage?: string
+): string {
+    const message = getErrorMessage(error, context)
+    return fallbackMessage && message === getDefaultMessage(context) ? fallbackMessage : message
+}
+
+/**
+ * Get a standardized error message for form field validation or inline display
+ * @param error - The error to convert
+ * @param context - The context of the error
+ * @param fallbackMessage - Optional fallback message if error processing fails
+ * @returns A user-friendly error message suitable for form validation
+ */
+export function getFormErrorMessage(
+    error: unknown,
+    context: ErrorContext = 'data',
+    fallbackMessage?: string
+): string {
+    const message = getErrorMessage(error, context)
+    return fallbackMessage && message === getDefaultMessage(context) ? fallbackMessage : message
 }
 
 /**
@@ -185,5 +243,12 @@ export function createFriendlyError(status: number, serverMessage?: string, cont
         HTTP_ERROR_MESSAGES[status] ||
         'Something went wrong. Please try again later.'
 
-    return new Error(message)
+    // Create an Error with the friendly message, but also store the status code
+    // This allows the error extraction to work properly
+    const error = new Error(message)
+    // Store status code as a custom property for extraction
+    ;(error as any).statusCode = status
+    ;(error as any).context = context
+
+    return error
 }

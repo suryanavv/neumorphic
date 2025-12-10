@@ -93,6 +93,7 @@ export class DoctorPatientsAPI extends BaseAPI {
     } catch (error) {
       // Return empty array if documents endpoint doesn't exist or fails
       console.warn('Failed to fetch patient documents:', error)
+      // Don't throw - return empty array for graceful degradation
       return []
     }
   }

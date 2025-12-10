@@ -6,8 +6,9 @@ import { AdminDoctorsAPI } from "@/api/admin/doctors"
 import { AdminAppointmentsAPI } from "@/api/admin/appointments"
 import { AuthAPI, AuthStorage } from "@/api/auth"
 import { useCounts } from "@/contexts/counts-context"
-import { getErrorMessage } from "@/lib/errors"
+import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { getCurrentDateInLocal } from "@/lib/date"
+import toast from "react-hot-toast"
 
 // Doctor Appointments Modal Component
 function DoctorAppointmentsModal({ doctor, onClose }: { doctor: any, onClose: () => void }) {
@@ -453,7 +454,8 @@ export function DoctorsPage({ pageParams }: DoctorsPageProps) {
       window.location.reload()
     } catch (error) {
       console.error('Failed to login as doctor:', error)
-      alert('Failed to login as doctor. Please try again.')
+      const errorMessage = getToastErrorMessage(error, 'data', 'Failed to login as doctor. Please try again.')
+      toast.error(errorMessage)
     } finally {
       setLoggingInAs(null)
     }

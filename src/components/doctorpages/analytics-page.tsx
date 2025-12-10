@@ -197,7 +197,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 pt-4">
       {/* Statistics Cards Section */}
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

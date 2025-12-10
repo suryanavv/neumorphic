@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { formatDateUS, formatDateUSShort, getCurrentDateInLocal } from "@/lib/date"
+import { getErrorMessage } from "@/lib/errors"
 import { AdminPatientsAPI, AdminClinicsAPI } from "@/api/admin"
 import type { Patient, Guardian } from "@/api/shared/types"
 
@@ -68,7 +69,7 @@ export function PatientsPage() {
         setFilteredPatients(patientsData) // Initially show all patients
       } catch (err) {
         console.error('Failed to fetch data:', err)
-        setError('Failed to load data. Please try again.')
+        setError(getErrorMessage(err, 'data'))
       } finally {
         setLoading(false)
       }

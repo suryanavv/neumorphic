@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TimePicker } from "@/components/ui/time-picker"
 import toast from "react-hot-toast"
+import { getToastErrorMessage } from "@/lib/errors"
 import {
   Table,
   TableBody,
@@ -142,7 +143,7 @@ export function SettingsPage() {
         }
       } catch (error) {
         console.error("Failed to fetch working hours:", error)
-        toast.error("Failed to load working hours")
+        toast.error(getToastErrorMessage(error, 'data', 'Failed to load working hours'))
       } finally {
         setIsLoadingWorkingHours(false)
       }
@@ -179,7 +180,7 @@ export function SettingsPage() {
         setPublicHolidays(holidaysList)
       } catch (error) {
         console.error("Failed to fetch availability exceptions:", error)
-        toast.error("Failed to load off days")
+        toast.error(getToastErrorMessage(error, 'data', 'Failed to load off days'))
       } finally {
         setIsLoadingOffDays(false)
       }
@@ -256,7 +257,7 @@ export function SettingsPage() {
       toast.success("Off day deleted successfully")
     } catch (error) {
       console.error("Failed to delete off day:", error)
-      toast.error("Failed to delete off day")
+      toast.error(getToastErrorMessage(error, 'data', 'Failed to delete off day'))
     } finally {
       setIsDeletingOffDay(false)
       setIsDeleteDialogOpen(false)
@@ -331,7 +332,7 @@ export function SettingsPage() {
       resetOffDayForm()
     } catch (error) {
       console.error("Failed to save off day:", error)
-      toast.error("Failed to save off day")
+      toast.error(getToastErrorMessage(error, 'data', 'Failed to save off day'))
     } finally {
       setIsSavingOffDay(false)
     }
@@ -367,7 +368,7 @@ export function SettingsPage() {
       toast.success("Working hours saved successfully")
     } catch (error) {
       console.error("Failed to save working hours:", error)
-      toast.error("Failed to save working hours")
+      toast.error(getToastErrorMessage(error, 'data', 'Failed to save working hours'))
     } finally {
       setIsSavingWorkingHours(false)
     }
@@ -405,7 +406,7 @@ export function SettingsPage() {
       toast.success("Holidays synced successfully")
     } catch (error) {
       console.error("Failed to sync holidays:", error)
-      toast.error("Failed to sync holidays")
+      toast.error(getToastErrorMessage(error, 'data', 'Failed to sync holidays'))
     } finally {
       setIsSyncingHolidays(false)
     }

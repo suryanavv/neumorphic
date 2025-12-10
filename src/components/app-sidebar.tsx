@@ -167,7 +167,7 @@ export function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:!p-3 hover:bg-transparent focus:bg-transparent active:bg-transparent"
             >
-              <a href="#" className="flex items-center gap-2 min-h-[3rem]">
+              <a href="#" className="flex items-center -mt-2 gap-2 min-h-[3rem]">
                 {userType === 'admin' ? (
                   // For admin users, always show app branding
                   <>

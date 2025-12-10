@@ -3,7 +3,7 @@ import { IconArrowLeft, IconUserCircle, IconLoader2 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { DatePicker } from "@/components/ui/date-picker"
 import { formatDateUS, formatDateUSShort, getCurrentDateInLocal, getCurrentDateStringInLocal } from "@/lib/date"
-import { getErrorMessage } from "@/lib/errors"
+import { getErrorMessage, getToastErrorMessage } from "@/lib/errors"
 import { AuthStorage } from "@/api/auth"
 import { DoctorPatientsAPI, DoctorAppointmentsAPI } from "@/api/doctor"
 import type { Patient } from "@/api/shared/types"
@@ -181,7 +181,18 @@ export function PatientsPage() {
         setFilteredPatients(patientsData) // Initially show all patients from their clinic
       } catch (err) {
         console.error('Failed to fetch data:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load patients')
+
+        // Check if this is an authentication error
+        const errorMessage = err instanceof Error ? err.message : 'Failed to load patients'
+        if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
+          console.log('🔐 Authentication error detected, redirecting to login...')
+          if (window.navigateToPage) {
+            window.navigateToPage('login')
+          }
+          return
+        }
+
+        setError(errorMessage)
       } finally {
         setLoading(false)
       }
@@ -271,8 +282,28 @@ export function PatientsPage() {
 
       // Fetch appointments and documents in parallel (patient details already available from list)
       const [appointmentsData, documentsData] = await Promise.all([
-        DoctorAppointmentsAPI.getAppointmentsByPatient(patient.id).catch(() => []),
-        DoctorPatientsAPI.getPatientDocuments(patient.id).catch(() => [])
+        DoctorAppointmentsAPI.getAppointmentsByPatient(patient.id).catch((err) => {
+          // Check if this is an authentication error (401)
+          if (err?.message?.includes('401') || err?.message?.includes('unauthorized') || err?.message?.includes('session has expired')) {
+            console.log('🔐 Authentication error detected, redirecting to login...')
+            if (window.navigateToPage) {
+              window.navigateToPage('login')
+            }
+            return []
+          }
+          return []
+        }),
+        DoctorPatientsAPI.getPatientDocuments(patient.id).catch((err) => {
+          // Check if this is an authentication error (401)
+          if (err?.message?.includes('401') || err?.message?.includes('unauthorized') || err?.message?.includes('session has expired')) {
+            console.log('🔐 Authentication error detected, redirecting to login...')
+            if (window.navigateToPage) {
+              window.navigateToPage('login')
+            }
+            return []
+          }
+          return []
+        })
       ])
 
       const transformedAppointments = transformAppointments(appointmentsData)
@@ -287,7 +318,18 @@ export function PatientsPage() {
       setSelectedPatient(extendedPatient)
     } catch (err) {
       console.error('Failed to fetch patient profile:', err)
-      setProfileError(err instanceof Error ? err.message : 'Failed to load patient profile')
+
+      // Check if this is an authentication error
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load patient profile'
+      if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
+        console.log('🔐 Authentication error detected in main catch, redirecting to login...')
+        if (window.navigateToPage) {
+          window.navigateToPage('login')
+        }
+        return
+      }
+
+      setProfileError(errorMessage)
       // Still set the basic patient data
       setSelectedPatient({
         ...patient,
@@ -367,7 +409,7 @@ export function PatientsPage() {
       setShowAddForm(false)
     } catch (err) {
       console.error('Failed to create patient:', err)
-      setSubmitError(err instanceof Error ? err.message : 'Failed to create patient. Please try again.')
+      setSubmitError(getErrorMessage(err, 'data'))
     } finally {
       setSubmitting(false)
     }
@@ -458,7 +500,7 @@ export function PatientsPage() {
       }
     } catch (err) {
       console.error('Failed to fetch availability:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to fetch availability. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to fetch availability. Please try again.'), 'error')
       setAvailableSlots([])
     } finally {
       setLoadingSlots(false)
@@ -523,7 +565,7 @@ export function PatientsPage() {
       showToast('Appointment scheduled successfully', 'success')
     } catch (err) {
       console.error('Failed to schedule appointment:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to schedule appointment. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to schedule appointment. Please try again.'), 'error')
     } finally {
       setScheduling(false)
     }
@@ -573,7 +615,7 @@ export function PatientsPage() {
       showToast('Appointment rescheduled successfully', 'success')
     } catch (err) {
       console.error('Failed to reschedule appointment:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to reschedule appointment. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to reschedule appointment. Please try again.'), 'error')
     } finally {
       setScheduling(false)
     }
@@ -588,7 +630,7 @@ export function PatientsPage() {
       await DoctorPatientsAPI.viewDocument(doc, selectedPatient.id)
     } catch (err) {
       console.error('Failed to view document:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to open document. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to open document. Please try again.'), 'error')
     } finally {
       setViewingDoc(null)
     }
@@ -604,7 +646,7 @@ export function PatientsPage() {
       await DoctorPatientsAPI.downloadDocument(doc, selectedPatient.id)
     } catch (err) {
       console.error('Failed to download document:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to download document. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to download document. Please try again.'), 'error')
     } finally {
       setDownloadingDoc(null)
     }
@@ -649,7 +691,7 @@ export function PatientsPage() {
       showToast('Appointment cancelled successfully', 'success')
     } catch (err) {
       console.error('Failed to cancel appointment:', err)
-      showToast(err instanceof Error ? err.message : 'Failed to cancel appointment. Please try again.', 'error')
+      showToast(getToastErrorMessage(err, 'data', 'Failed to cancel appointment. Please try again.'), 'error')
     } finally {
       setCancelling(false)
     }

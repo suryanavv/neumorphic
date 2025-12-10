@@ -158,7 +158,21 @@ export function AppointmentPage() {
         if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
           console.log('🔐 Token expired, logging out user...')
           AuthStorage.clearAll()
+          if (window.navigateToPage) {
+            window.navigateToPage('login')
+          }
           return // Don't show error, logout will redirect to login
+        }
+
+        // Also check for authentication error messages
+        const errorMessage = err instanceof Error ? err.message : ''
+        if (errorMessage.includes('401') || errorMessage.includes('unauthorized') || errorMessage.includes('session has expired')) {
+          console.log('🔐 Authentication error detected, redirecting to login...')
+          AuthStorage.clearAll()
+          if (window.navigateToPage) {
+            window.navigateToPage('login')
+          }
+          return
         }
 
         setError(getErrorMessage(err))
