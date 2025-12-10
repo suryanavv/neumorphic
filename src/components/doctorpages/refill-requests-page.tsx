@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { IconMapPin } from "@tabler/icons-react"
 import { AuthStorage } from "@/api/auth"
 import { DoctorRequestsAPI } from "@/api/doctor"
 import { useCounts } from "@/contexts/counts-context"
@@ -192,9 +193,14 @@ export function RefillRequestsPage() {
                       </td>
                       <td className="py-3 px-1.5 text-sm">{request.pharmacy_name}</td>
                       <td className="py-3 px-1.5 text-sm max-w-xs">
-                        <div className="line-clamp-2" title={request.pharmacy_location}>
+                        <span
+                          className="flex items-center gap-1 underline cursor-pointer line-clamp-2"
+                          title={`Open ${request.pharmacy_location} in Google Maps`}
+                          onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(request.pharmacy_location)}`, '_blank')}
+                        >
+                          <IconMapPin className="w-4 h-4 flex-shrink-0" />
                           {request.pharmacy_location}
-                        </div>
+                        </span>
                       </td>
                       <td className="py-3 px-1.5 text-sm">
                         {(() => {

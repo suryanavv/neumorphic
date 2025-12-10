@@ -140,7 +140,7 @@ export function CalendarIntegrations() {
     <div key={account.id} className="flex items-center justify-between my-4 p-3 neumorphic-inset rounded-lg">
       <div className="flex items-center gap-3">
         <div>
-          <p className="text-sm font-medium">{account.email}</p>
+          <p className="text-sm font-medium" style={{ textTransform: 'none' }}>{account.email}</p>
           <div className="text-xs text-muted-foreground">
             Connected: {formatDate(account.created_at)}
           </div>
