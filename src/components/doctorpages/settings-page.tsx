@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { TimePicker } from "@/components/ui/time-picker"
+import { DatePicker } from "@/components/ui/date-picker"
 import toast from "react-hot-toast"
 import { getToastErrorMessage } from "@/lib/errors"
 import {
@@ -44,8 +45,8 @@ const defaultWorkingHours = [
   { day: "Sunday", open: "9:00 AM", close: "5:00 PM", isClosed: true },
 ]
 
-// Helpers to convert between stored "MM-DD-YYYY" (US format) and native <input type="date"> "YYYY-MM-DD"
-const toInputDateValue = (value: string): string => {
+// Helpers to convert between stored "MM-DD-YYYY" (US format) and DatePicker "YYYY-MM-DD"
+const toDatePickerValue = (value: string): string => {
   if (!value) return ""
   const parts = value.split("-")
   if (parts.length !== 3) return ""
@@ -54,7 +55,7 @@ const toInputDateValue = (value: string): string => {
   return `${yyyy}-${mm}-${dd}`
 }
 
-const fromInputDateValue = (value: string): string => {
+const fromDatePickerValue = (value: string): string => {
   if (!value) return ""
   const parts = value.split("-")
   if (parts.length !== 3) return ""
@@ -716,15 +717,14 @@ export function SettingsPage() {
                     <Label htmlFor="offday-start-date">
                       Date <span className="">*</span>
                     </Label>
-                    <Input
-                      id="offday-start-date"
-                      type="date"
-                      value={toInputDateValue(offDayForm.startDate)}
-                      onChange={(e) =>
-                        handleOffDayFormChange("startDate", fromInputDateValue(e.target.value))
+                    <DatePicker
+                      value={toDatePickerValue(offDayForm.startDate)}
+                      onChange={(value) =>
+                        handleOffDayFormChange("startDate", fromDatePickerValue(value))
                       }
+                      placeholder="MM/DD/YYYY"
                       required
-                      className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                      className="w-full"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -734,15 +734,14 @@ export function SettingsPage() {
                         (Optional)
                       </span>
                     </Label>
-                    <Input
-                      id="offday-end-date"
-                      type="date"
-                      value={toInputDateValue(offDayForm.endDate)}
-                      min={toInputDateValue(offDayForm.startDate)}
-                      onChange={(e) =>
-                        handleOffDayFormChange("endDate", fromInputDateValue(e.target.value))
+                    <DatePicker
+                      value={toDatePickerValue(offDayForm.endDate)}
+                      onChange={(value) =>
+                        handleOffDayFormChange("endDate", fromDatePickerValue(value))
                       }
-                      className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                      placeholder="MM/DD/YYYY"
+                      minDate={offDayForm.startDate ? new Date(toDatePickerValue(offDayForm.startDate)) : undefined}
+                      className="w-full"
                     />
                     <p className="text-[11px]">
                       Leave empty for single day off.

@@ -1,4 +1,5 @@
 import { BaseAPI } from "../shared/base"
+import { AuthStorage } from "../auth"
 
 export interface DashboardStats {
   total_patients: number
@@ -193,7 +194,7 @@ export class DoctorAnalyticsAPI extends BaseAPI {
   }
 
   /**
-   * Get total logs count
+   * Get total logs count filtered by clinic phone number
    */
   static async getLogsCount(clinicId?: number, doctorId?: number): Promise<number> {
     const params: Record<string, any> = {}
@@ -210,16 +211,29 @@ export class DoctorAnalyticsAPI extends BaseAPI {
 
     const data = await this.handleResponse<any>(response)
 
-    // Handle different response structures
+    // Extract logs array from response
+    let logs: any[] = []
     if (Array.isArray(data)) {
-      return data.length
+      logs = data
     } else if (data.logs && Array.isArray(data.logs)) {
-      return data.logs.length
+      logs = data.logs
     } else if (data.count !== undefined) {
+      // If API returns count directly, we still need to fetch logs to filter
+      // But for now, return the count if logs array is not available
       return data.count
     }
 
-    return 0
+    // Filter logs by clinic's phone number (to_phone must match clinic phone)
+    const clinicData = AuthStorage.getClinicData()
+    const clinicPhone = clinicData?.phone_number
+
+    if (clinicPhone && logs.length > 0) {
+      const filtered = logs.filter(log => log.to_phone === clinicPhone)
+      return filtered.length
+    }
+
+    // If no clinic phone number found, return all logs count
+    return logs.length
   }
 }
 

@@ -55,7 +55,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
-          className={`w-28 justify-start text-left text-xs sm:text-sm font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${className || ""}`}
+          className={`w-28 justify-start text-left text-xs sm:text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 ${className || ""}`}
         >
           {value}
         </Button>
@@ -68,7 +68,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
           <div className="flex justify-center gap-4 sm:gap-6">
             {/* Hour Section */}
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+              <div className="text-xs sm:text-sm font-medium text-foreground mb-2">
                 Hour
               </div>
               <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
@@ -78,8 +78,8 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                       key={hour}
                       className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
                         selectedHour === hour
-                          ? "border-primary text-primary hover:text-primary-foreground"
-                          : "border-transparent text-muted-foreground hover:text-primary-foreground"
+                          ? "border-primary text-foreground hover:text-foreground-foreground"
+                          : "border-transparent text-foreground hover:text-foreground-foreground"
                       }`}
                       onClick={() => setSelectedHour(hour)}
                     >
@@ -92,7 +92,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
 
             {/* Minute Section */}
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+              <div className="text-xs sm:text-sm font-medium text-foreground mb-2">
                 Min
               </div>
               <div className="w-12 sm:w-14 h-40 overflow-y-auto neumorphic-inset rounded-xl p-1 timepicker-scroll">
@@ -102,8 +102,8 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                       key={minute}
                       className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
                         selectedMinute === minute
-                          ? "border-primary text-primary hover:text-primary-foreground"
-                          : "border-transparent text-muted-foreground hover:text-primary-foreground"
+                          ? "border-primary text-foreground hover:text-foreground-foreground"
+                          : "border-transparent text-foreground hover:text-foreground-foreground"
                       }`}
                       onClick={() => setSelectedMinute(minute)}
                     >
@@ -116,7 +116,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
 
             {/* Period Section */}
             <div className="flex flex-col items-center">
-              <div className="text-xs sm:text-sm font-medium text-muted-foreground mb-2">
+              <div className="text-xs sm:text-sm font-medium text-foreground mb-2">
                 Period
               </div>
               <div className="flex flex-col gap-1">
@@ -125,8 +125,8 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
                     key={period}
                     className={`w-fit text-xs font-medium neumorphic-pressed rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 mx-auto border ${
                       selectedPeriod === period
-                        ? "border-primary text-primary hover:text-primary-foreground"
-                        : "border-transparent text-muted-foreground hover:text-primary-foreground"
+                        ? "border-primary text-foreground hover:text-foreground-foreground"
+                        : "border-transparent text-foreground hover:text-foreground-foreground"
                     }`}
                     onClick={() => setSelectedPeriod(period)}
                   >
@@ -141,7 +141,7 @@ export function TimePicker({ value, onChange, className }: TimePickerProps) {
           <div className="flex justify-center border-t border-muted/30">
             <Button
               onClick={handleDone}
-              className="w-fit text-xs font-medium neumorphic-pressed text-primary hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-4 py-2 inline-flex items-center gap-2"
+              className="w-fit text-xs font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-4 py-2 inline-flex items-center gap-2"
             >
               <IconCheck className="w-3 h-3" />
               Done

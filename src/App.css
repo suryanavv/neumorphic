@@ -56,7 +56,7 @@
 
   /* Neumorphic base surface */
   --background: #e0e0e0;
-  --foreground: #2d2d2d;
+  --foreground: #000000;
   --card: #e0e0e0;
   --card-foreground: #2d2d2d;
   --popover: #e0e0e0;
@@ -85,12 +85,13 @@
   /* Sidebar tokens - neumorphic style */
   --sidebar: #d5d5d5;
   --sidebar-foreground: #2d2d2d;
-  --sidebar-primary: #14B5AA;
+  /* --sidebar-primary: #14B5AA; */
+  --sidebar-primary: #00ffee;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #d0d0d0;
-  --sidebar-accent-foreground: #2d2d2d;
+  --sidebar-accent-foreground: #000000;
   --sidebar-border: transparent;
-  --sidebar-ring: #14B5AA;
+  --sidebar-ring: #000000;
 }
 
 @layer base {
@@ -420,6 +421,11 @@
       -30px -30px 60px rgba(255, 255, 255, 1);
     max-width: 500px;
     margin: 0 auto;
+  }
+
+  .neumorphic-overlay {
+    background: rgba(224, 224, 224, 0.85);
+    backdrop-filter: blur(4px);
   }
 
   .neumorphic-inset-sidebar {

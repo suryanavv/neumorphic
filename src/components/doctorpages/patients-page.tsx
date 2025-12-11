@@ -1708,17 +1708,17 @@ export function PatientsPage() {
                   {/* Guardian Information - shown when patient is under 18 */}
                   {isPatientMinor(formData.dob) && (
                     <div className="space-y-2 pt-3 border-t border-border">
-                      <h2 className="mb-2 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
+                      <h2 className="mb-4 text-base font-semibold">Guardian Information* (Patient is a minor)</h2>
 
                       {/* Guardian Name Fields - All in one row */}
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Guardian First Name *
+                            First Name *
                           </label>
                           <input
                             type="text"
-                            placeholder="Enter guardian first name"
+                            placeholder="Enter first name"
                             value={formData.guardianFirstName}
                             onChange={(e) => {
                               const { value, error } = validateNameInput(e.target.value)
@@ -1735,11 +1735,11 @@ export function PatientsPage() {
                         </div>
                         <div>
                           <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Guardian Middle Name
+                            Middle Name
                           </label>
                           <input
                             type="text"
-                            placeholder="Enter guardian middle name"
+                            placeholder="Enter middle name"
                             value={formData.guardianMiddleName}
                             onChange={(e) => {
                               const { value, error } = validateNameInput(e.target.value)
@@ -1755,11 +1755,11 @@ export function PatientsPage() {
                         </div>
                         <div>
                           <label className="block text-xs font-medium uppercase tracking-wide mb-1">
-                            Guardian Last Name *
+                            Last Name *
                           </label>
                           <input
                             type="text"
-                            placeholder="Enter guardian last name"
+                            placeholder="Enter last name"
                             value={formData.guardianLastName}
                             onChange={(e) => {
                               const { value, error } = validateNameInput(e.target.value)
@@ -1806,13 +1806,12 @@ export function PatientsPage() {
                             <option value="">Select relationship</option>
                             <option value="Parent">Parent</option>
                             <option value="Spouse">Spouse (Husband/Wife)</option>
-                            <option value="Guardian">Legal Guardian</option>
                             <option value="Grandparent">Grandparent</option>
                             <option value="Sibling">Sibling</option>
                             <option value="Aunt">Aunt</option>
                             <option value="Uncle">Uncle</option>
                             <option value="Cousin">Cousin</option>
-                            <option value="Other">Other</option>
+                            <option value="Guardian">Guardian</option>
                           </select>
                         </div>
                       </div>

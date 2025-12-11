@@ -1,5 +1,6 @@
 import { LogIn, Clock } from 'lucide-react'
 import { useSession } from '@/contexts/session-context'
+import { Button } from '@/components/ui/button'
 
 export function SessionExpiredModal() {
     const { isSessionExpired, handleLogout } = useSession()
@@ -15,31 +16,35 @@ export function SessionExpiredModal() {
     }
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="neumorphic-modal p-8 text-center max-w-md mx-4">
-                {/* Icon */}
-                <div className="neumorphic-icon w-16 h-16 mx-auto mb-6">
-                    <Clock className="w-8 h-8 text-[#14B5AA]" />
+        <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-lg flex items-center justify-center z-[9999] p-4"
+        >
+            <div
+                className="neumorphic-pressed flex flex-col items-center justify-center rounded-lg w-full max-w-xl mx-auto max-h-[90vh] bg-background"
+            >
+                <div className="p-5 flex flex-col items-center justify-center w-full">
+                    {/* Header */}
+                    <div className="flex flex-col items-center justify-center w-full mb-4">
+                        <div className="flex flex-col items-center gap-3 w-full">
+                            <Clock className="w-8 h-8 text-[#14B5AA]" />
+                            <h2 className="text-base font-semibold text-center">Session Expired</h2>
+                        </div>
+                    </div>
+
+                    {/* Message */}
+                    <p className="text-sm text-foreground mb-6 leading-relaxed text-center">
+                        Your session has expired due to inactivity. Please log in again to continue.
+                    </p>
+
+                    {/* Login Button */}
+                    <Button
+                        onClick={handleLoginClick}
+                        className="w-fit flex flex-row items-center justify-center text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg cursor-pointer transition-all duration-200 px-3 py-2 mx-auto"
+                    >
+                        <LogIn className="w-4 h-4 mr-2" />
+                        Log In Again
+                    </Button>
                 </div>
-
-                {/* Title */}
-                <h2 className="text-2xl font-bold text-[#2d2d2d] mb-3">
-                    Session Expired
-                </h2>
-
-                {/* Message */}
-                <p className="text-[#5a5a5a] mb-8 leading-relaxed">
-                    Your session has expired due to inactivity. Please log in again to continue.
-                </p>
-
-                {/* Login Button */}
-                <button
-                    onClick={handleLoginClick}
-                    className="neumorphic-btn-primary w-full py-4 px-6 flex items-center justify-center gap-3 text-lg font-semibold"
-                >
-                    <LogIn className="w-5 h-5" />
-                    <span>Log In Again</span>
-                </button>
             </div>
         </div>
     )
