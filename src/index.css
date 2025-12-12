@@ -1,56 +1,59 @@
 @import "tailwindcss";
 
-/* Custom sidebar menu button styling - pure black text */
+/* Custom sidebar menu button styling - premium design */
 [data-sidebar="menu-button"] {
-  color: #000000 !important;
+  color: #334155 !important;
+  transition: all 0.2s ease;
 }
 
 [data-sidebar="menu-button"] span {
-  color: #000000 !important;
+  color: #334155 !important;
 }
 
 [data-sidebar="menu-button"] svg {
-  color: #000000 !important;
+  color: #64748b !important;
 }
 
-/* Hover states - keep text black */
+/* Hover states */
 [data-sidebar="menu-button"]:hover {
-  color: #000000 !important;
+  color: #1e293b !important;
+  background-color: #f1f5f9 !important;
 }
 
 [data-sidebar="menu-button"]:hover span {
-  color: #000000 !important;
+  color: #1e293b !important;
 }
 
 [data-sidebar="menu-button"]:hover svg {
-  color: #000000 !important;
+  color: #6366f1 !important;
 }
 
 /* Active state styling */
 [data-sidebar="menu-button"][data-active="true"] {
-  /* Background removed - using custom bar indicator from nav-main.tsx instead */
-  background-color: transparent !important;
-  color: #000000 !important;
-  border-radius: 6px !important;
+  background-color: #f1f5f9 !important;
+  color: #6366f1 !important;
+  border-radius: 8px !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"] span {
-  color: #000000 !important;
+  color: #6366f1 !important;
+  font-weight: 600 !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"] svg {
-  color: #000000 !important;
+  color: #6366f1 !important;
 }
 
 /* Active hover state */
 [data-sidebar="menu-button"][data-active="true"]:hover {
-  color: #000000 !important;
+  color: #6366f1 !important;
+  background-color: #e0e7ff !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"]:hover span {
-  color: #000000 !important;
+  color: #6366f1 !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"]:hover svg {
-  color: #000000 !important;
+  color: #6366f1 !important;
 }

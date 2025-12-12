@@ -64,11 +64,11 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-background">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/50">
       {/* Admin Impersonation Banner */}
       {AuthStorage.isAdminImpersonating() && userType === 'doctor' && userData && (
-        <div className="px-4 pt-2 text-center text-sm font-medium">
-          <div className="flex items-center justify-center gap-2">
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-center text-sm font-medium text-white">
+          <div className="flex items-center justify-center gap-3">
             <span>👑 Admin logged in as {userData.name || `${userData.first_name || ''} ${userData.last_name || ''}`.trim()}</span>
             <Button
               onClick={() => {
@@ -76,7 +76,7 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
                 window.location.reload()
               }}
               size="sm"
-              className="rounded-full text-xs font-medium transition-colors"
+              className="bg-white/20 hover:bg-white/30 text-white border-0 rounded-full text-xs font-medium transition-colors"
             >
               Exit Impersonation
             </Button>
@@ -84,27 +84,28 @@ export function AppHeader({ currentPage, userType = 'doctor', doctorsCount, user
         </div>
       )}
 
-      <div className="flex h-16 shrink-0 items-center justify-between gap-2 px-4">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
-          <span className="text-lg font-semibold">
+      <div className="flex h-16 shrink-0 items-center justify-between gap-4 px-6">
+        <div className="flex items-center gap-3">
+          <SidebarTrigger className="-ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors" />
+          <div className="h-6 w-px bg-slate-200"></div>
+          <span className="text-lg font-semibold text-slate-900">
             {currentPage ? getPageTitle(currentPage) : (userType === 'admin' ? "EzMedTech" : app.name)}
           </span>
         </div>
         <div className="flex items-center gap-4">
           {/* Branding - Powered by EzMedTech */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
             <img
               src="/logo.svg"
               alt={userType === 'admin' ? "EzMedTech Logo" : "EzMedTech Logo"}
-              className="w-6 h-6 object-contain"
+              className="w-5 h-5 object-contain"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-medium leading-tight">
+              <span className="text-[10px] font-medium text-slate-500 leading-tight">
                 Powered by
               </span>
-              <span className="text-sm font-semibold text-foreground leading-tight">
-                {userType === 'admin' ? 'EzMedTech' : 'EzMedTech'}
+              <span className="text-xs font-semibold text-slate-700 leading-tight">
+                EzMedTech
               </span>
             </div>
           </div>

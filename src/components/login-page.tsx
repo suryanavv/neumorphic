@@ -80,88 +80,124 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
 
   return (
-    <div className="min-h-screen flex ">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-primary">
-        <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12">
-          <div className="flex items-center gap-2">
-            <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
-            <h1 className="text-xl font-semibold">EZMedTech</h1>
+    <div className="min-h-screen flex">
+      {/* Left Side - Gradient Hero Section */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
+        {/* Abstract Shapes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/4 -left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 -right-1/4 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-1/4 left-1/4 w-72 h-72 bg-indigo-400/20 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div className="relative z-10 flex flex-col justify-between w-full px-12 py-12 text-white">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <img src="/logo.svg" alt="EzMedTech Logo" className="w-6 h-6 object-contain" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight">EZMedTech</h1>
           </div>
 
-          <div className="flex-1 flex flex-col justify-center">
-            <h2 className="text-4xl mb-6 leading-tight">Effortlessly manage your medical practice.</h2>
-            <p className="text-lg leading-relaxed">
-              Manage Patients Information, Appointments, and more.
+          <div className="flex-1 flex flex-col justify-center max-w-lg">
+            <h2 className="text-5xl font-bold mb-6 leading-tight">
+              Effortlessly Manage Your Medical Practice
+            </h2>
+            <p className="text-xl text-white/80 leading-relaxed">
+              Streamline patient information, appointments, and clinical workflows with our modern healthcare platform.
             </p>
+            
+            {/* Feature Pills */}
+            <div className="flex flex-wrap gap-3 mt-8">
+              <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">
+                📊 Smart Analytics
+              </span>
+              <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">
+                📅 Easy Scheduling
+              </span>
+              <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium">
+                🔒 HIPAA Compliant
+              </span>
+            </div>
           </div>
 
-          <div className="flex justify-between items-center text-sm">
+          <div className="flex justify-between items-center text-sm text-white/60">
             <span>© {new Date().getFullYear()} EZMedTech. All rights reserved.</span>
-            <span className="cursor-pointer">Privacy Policy</span>
+            <span className="cursor-pointer hover:text-white transition-colors">Privacy Policy</span>
           </div>
         </div>
       </div>
 
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-background min-h-screen lg:min-h-0">
-        <div className="w-full max-w-md mx-auto space-y-6 sm:space-y-8 p-6 sm:p-8 rounded-lg neumorphic-pressed">
-          <div className="lg:hidden text-center mb-6 sm:mb-8">
-            <h1 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">EZMedtech</h1>
-            <p className="text-sm">Medical Dashboard</p>
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-slate-50 min-h-screen">
+        <div className="w-full max-w-md mx-auto">
+          {/* Mobile Header */}
+          <div className="lg:hidden text-center mb-8">
+            <div className="w-14 h-14 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-500/30">
+              <img src="/logo.svg" alt="EzMedTech Logo" className="w-8 h-8 object-contain" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">EZMedtech</h1>
+            <p className="text-slate-500 mt-1">Medical Dashboard</p>
           </div>
 
-          <div className="space-y-4">
-            <div className="text-center -mt-3">
-              {/* <h2 className="text-xl sm:text-2xl text-foreground font-semibold">Login</h2> */}
-              {/* <p className="text-sm sm:text-base mt-1">Sign in to your account</p> */}
+          {/* Login Card */}
+          <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-100">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
+              <p className="text-slate-500 mt-1">Sign in to your account</p>
             </div>
 
             {/* User Type Selection */}
             <Tabs
               value={userType}
               onValueChange={(value) => setUserType(value as 'admin' | 'doctor')}
+              className="mb-6"
             >
-              <TabsList className="-p-2.5 w-full">
-                <TabsTrigger value="admin" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+              <TabsList className="w-full bg-slate-100 p-1 rounded-xl">
+                <TabsTrigger 
+                  value="admin" 
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 transition-all"
+                >
                   <IconShield className="w-4 h-4" />
-                  <span className="hidden sm:inline">Admin</span>
-                  <span className="sm:hidden">Admin</span>
+                  Admin
                 </TabsTrigger>
-                <TabsTrigger value="doctor" className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs sm:text-sm">
+                <TabsTrigger 
+                  value="doctor" 
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 transition-all"
+                >
                   <IconStethoscope className="w-4 h-4" />
-                  <span className="hidden sm:inline">Doctor</span>
-                  <span className="sm:hidden">Doctor</span>
+                  Doctor
                 </TabsTrigger>
               </TabsList>
             </Tabs>
 
             {/* Error Display */}
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-red-50 border border-red-200 text-red-700">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-red-50 border border-red-100 text-red-700 mb-6">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm">{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {/* Email Field */}
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">
-                  Email
+                <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                  Email Address
                 </Label>
                 <Input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                  placeholder="you@example.com"
+                  className="h-12 px-4 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                   required
                 />
               </div>
 
               {/* Password Field */}
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                <Label htmlFor="password" className="text-sm font-medium text-slate-700">
                   Password
                 </Label>
                 <div className="relative">
@@ -171,20 +207,20 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="pr-10 neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                    className="h-12 px-4 pr-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    className="absolute right-0 top-0 h-full cursor-pointer"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-slate-400 hover:text-slate-600"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-2 w-2" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-2 w-2" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
@@ -193,7 +229,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               {/* MFA Code Field (shown when required) */}
               {showMfa && (
                 <div className="space-y-2">
-                  <Label htmlFor="mfaCode" className="text-sm font-medium text-foreground">
+                  <Label htmlFor="mfaCode" className="text-sm font-medium text-slate-700">
                     MFA Code
                   </Label>
                   <Input
@@ -201,8 +237,8 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     type="text"
                     value={mfaCode}
                     onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    placeholder="Enter 6-digit MFA code"
-                    className="neumorphic-inset border-0 focus:ring-0 shadow-none rounded-lg bg-background focus:border-0 transition-all duration-200"
+                    placeholder="Enter 6-digit code"
+                    className="h-12 px-4 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all text-center text-lg tracking-widest"
                     maxLength={6}
                     required={showMfa}
                   />
@@ -217,13 +253,13 @@ export function LoginPage({ onLogin }: LoginPageProps) {
                     id="remember"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-gray-300 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
                   />
-                  <Label htmlFor="remember" className="text-sm cursor-pointer">
+                  <Label htmlFor="remember" className="text-sm text-slate-600 cursor-pointer">
                     Remember me
                   </Label>
                 </div>
-                <span className="text-sm text-muted-foreground cursor-pointer">
+                <span className="text-sm text-indigo-600 hover:text-indigo-700 cursor-pointer font-medium">
                   Forgot password?
                 </span>
               </div>
@@ -232,23 +268,29 @@ export function LoginPage({ onLogin }: LoginPageProps) {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full text-sm font-medium neumorphic-pressed text-foreground hover:text-primary-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
-                  <>
-                    <span>Logging in...</span>
-                    <div className="ml-2 w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-                  </>
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <span>Signing in...</span>
+                  </div>
                 ) : (
-                  <>
-                    <span>Login</span>
-                    <span className="text-lg ml-2">→</span>
-                  </>
+                  <div className="flex items-center gap-2">
+                    <span>Sign in</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </div>
                 )}
               </Button>
             </form>
-
           </div>
+
+          {/* Bottom text for mobile */}
+          <p className="text-center text-sm text-slate-500 mt-6 lg:hidden">
+            © {new Date().getFullYear()} EZMedTech. All rights reserved.
+          </p>
         </div>
       </div>
     </div>

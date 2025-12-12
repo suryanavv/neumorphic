@@ -1,4 +1,4 @@
-import { IconCalendar, IconMedicalCross, IconUsers, IconLogs } from "@tabler/icons-react"
+import { IconCalendar, IconMedicalCross, IconUsers, IconLogs, IconTrendingUp, IconClock, IconActivity } from "@tabler/icons-react"
 import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
 import { AuthStorage } from "@/api/auth"
@@ -56,17 +56,41 @@ const patientChartConfig = {
 const appointmentChartConfig = {
   scheduled: {
     label: "Scheduled",
-    color: "var(--color-chart-1)",
+    color: "#6366f1",
   },
   cancelled: {
     label: "Cancelled",
-    color: "var(--destructive)",
+    color: "#ef4444",
   },
 } satisfies ChartConfig
 
 interface AnalyticsPageProps {
   onPageChange?: (page: string) => void
 }
+
+// SVG Illustration Component for Doctor Dashboard
+const DoctorIllustration = () => (
+  <svg viewBox="0 0 200 150" className="w-full h-full" fill="none">
+    <defs>
+      <linearGradient id="docGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.3" />
+        <stop offset="100%" stopColor="#ffffff" stopOpacity="0.1" />
+      </linearGradient>
+    </defs>
+    {/* Stethoscope */}
+    <circle cx="100" cy="60" r="25" fill="url(#docGrad)" stroke="white" strokeWidth="2" />
+    <path d="M75 60 Q75 100 100 100 Q125 100 125 60" stroke="white" strokeWidth="3" fill="none" />
+    <circle cx="75" cy="55" r="8" fill="white" opacity="0.8" />
+    <circle cx="125" cy="55" r="8" fill="white" opacity="0.8" />
+    {/* Heart monitor line */}
+    <path d="M20 120 L50 120 L60 100 L70 130 L80 110 L90 120 L180 120" stroke="white" strokeWidth="2" opacity="0.6" />
+    {/* Plus signs */}
+    <g opacity="0.4">
+      <path d="M30 40 L30 55 M22.5 47.5 L37.5 47.5" stroke="white" strokeWidth="2" />
+      <path d="M160 80 L160 95 M152.5 87.5 L167.5 87.5" stroke="white" strokeWidth="2" />
+    </g>
+  </svg>
+)
 
 export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   const [selectedPieSlice, setSelectedPieSlice] = useState<string | null>(null)
@@ -150,7 +174,21 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     }
   }
 
-
+  // Get stat card styling based on type
+  const getStatCardStyle = (id: string) => {
+    switch (id) {
+      case 'totalPatients':
+        return { bg: 'bg-indigo-100', icon: 'text-indigo-600', card: 'stat-card' }
+      case 'totalLogs':
+        return { bg: 'bg-purple-100', icon: 'text-purple-600', card: 'stat-card stat-card-accent' }
+      case 'totalAppointments':
+        return { bg: 'bg-emerald-100', icon: 'text-emerald-600', card: 'stat-card stat-card-success' }
+      case 'todaysAppointments':
+        return { bg: 'bg-amber-100', icon: 'text-amber-600', card: 'stat-card stat-card-warm' }
+      default:
+        return { bg: 'bg-slate-100', icon: 'text-slate-600', card: 'stat-card' }
+    }
+  }
 
   // Build stats array with API data
   const statsArray = [
@@ -158,38 +196,38 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       id: "totalPatients",
       label: "Total Patients",
       value: stats?.total_patients ?? 0,
-      icon: "IconUsers"
+      icon: "IconUsers",
+      tag: { text: "+12%", type: "primary" }
     },
     {
       id: "totalLogs",
       label: "Total Logs",
       value: logsCount || 0,
-      icon: "IconLogs"
+      icon: "IconLogs",
+      tag: { text: "Records", type: "info" }
     },
     {
       id: "totalAppointments",
       label: "Total Appointments",
       value: stats?.total_appointments ?? 0,
-      icon: "IconCalendar"
+      icon: "IconCalendar",
+      tag: { text: "Completed", type: "success" }
     },
     {
       id: "todaysAppointments",
       label: "Today's Appointments",
       value: stats?.todays_appointments ?? 0,
-      icon: "IconMedicalCross"
+      icon: "IconMedicalCross",
+      tag: { text: "Today", type: "warning" }
     }
   ]
 
   if (loading) {
     return (
-      <div className="space-y-4 sm:space-y-6">
-        <div className="px-4 lg:px-6">
-          <div className="flex items-center justify-center h-64">
-            <div className="text-center">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-              <div className="text-sm text-muted-foreground">Loading analytics...</div>
-            </div>
-          </div>
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg text-slate-600">Loading analytics...</div>
         </div>
       </div>
     )
@@ -200,70 +238,103 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6 pt-4">
-      {/* Statistics Cards Section */}
-      <div className="px-4 lg:px-6">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          {statsArray.map((stat) => {
-            const IconComponent = getIcon(stat.icon)
-            const handleCardClick = () => {
-              if (stat.id === "totalPatients" && onPageChange) {
-                onPageChange("patients")
-              } else if (stat.id === "totalAppointments" && onPageChange) {
-                onPageChange("appointments")
-              } else if (stat.id === "totalLogs" && onPageChange) {
-                onPageChange("logs")
-              }
-            }
-
-            const isClickable = stat.id === "totalPatients" || stat.id === "totalAppointments" || stat.id === "totalLogs"
-
-            return (
-              <div
-                key={stat.id}
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${isClickable ? "cursor-pointer" : ""
-                  }`}
-                onClick={isClickable ? handleCardClick : undefined}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <IconComponent className="size-4" />
-                    {stat.label}
-                  </div>
-                  <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                    {stat.value}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
+    <div className="space-y-6 p-6">
+      {/* Welcome Banner with Gradient */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-600 rounded-2xl p-8 text-white">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-1/2 -left-1/4 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl"></div>
         </div>
-
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <IconActivity className="w-5 h-5" />
+              <span className="text-sm font-medium text-white/80">Dashboard Overview</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">
+              Good to see you! 👋
+            </h1>
+            <p className="text-white/80 text-lg">
+              Track your practice performance and patient insights
+            </p>
+          </div>
+          <div className="hidden lg:block w-48 h-36 opacity-80">
+            <DoctorIllustration />
+          </div>
+        </div>
       </div>
 
-      {/* Appointment Trends and Patients Overview*/}
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 px-4 lg:px-6 xl:grid-cols-[2fr_1fr]">
-        {/* Appointment Trends */}
-        <Card className="neumorphic-inset border-0">
-          <CardHeader>
-            <CardTitle>
-              {dashboardConfig.sections.appointmentTrends.title}
-            </CardTitle>
-            <CardDescription>
-              {selectedBar ? (
-                <div>
-                  {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
+      {/* Statistics Cards Section */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {statsArray.map((stat) => {
+          const IconComponent = getIcon(stat.icon)
+          const styles = getStatCardStyle(stat.id)
+          const handleCardClick = () => {
+            if (stat.id === "totalPatients" && onPageChange) {
+              onPageChange("patients")
+            } else if (stat.id === "totalAppointments" && onPageChange) {
+              onPageChange("appointments")
+            } else if (stat.id === "totalLogs" && onPageChange) {
+              onPageChange("logs")
+            }
+          }
+
+          const isClickable = stat.id === "totalPatients" || stat.id === "totalAppointments" || stat.id === "totalLogs"
+
+          return (
+            <div
+              key={stat.id}
+              className={`${styles.card} p-6 hover-lift transition-all duration-200 ${isClickable ? "cursor-pointer" : ""}`}
+              onClick={isClickable ? handleCardClick : undefined}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 ${styles.bg} rounded-xl flex items-center justify-center`}>
+                  <IconComponent className={`w-6 h-6 ${styles.icon}`} />
                 </div>
-              ) : (
-                <span>{dashboardConfig.sections.appointmentTrends.description}</span>
-              )}
-            </CardDescription>
+                <span className={`tag tag-${stat.tag.type}`}>
+                  {stat.tag.text}
+                </span>
+              </div>
+              <div className="text-3xl font-bold text-slate-900 mb-1">
+                {stat.value.toLocaleString()}
+              </div>
+              <div className="text-sm text-slate-500">{stat.label}</div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Appointment Trends and Patients Overview */}
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[2fr_1fr]">
+        {/* Appointment Trends */}
+        <Card className="premium-card border-0 shadow-card">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-slate-900">
+                  {dashboardConfig.sections.appointmentTrends.title}
+                </CardTitle>
+                <CardDescription className="text-slate-500">
+                  {selectedBar ? (
+                    <span>
+                      {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
+                    </span>
+                  ) : (
+                    <span>{dashboardConfig.sections.appointmentTrends.description}</span>
+                  )}
+                </CardDescription>
+              </div>
+              <span className="tag tag-primary">This Week</span>
+            </div>
           </CardHeader>
           <CardContent>
             {appointmentData.length === 0 ? (
               <div className="flex items-center justify-center h-[250px] sm:h-[280px] lg:h-[320px]">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-sm">No appointment trends data available</p>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <IconCalendar className="w-8 h-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-500">No appointment trends data available</p>
                 </div>
               </div>
             ) : (
@@ -273,50 +344,41 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   data={appointmentData}
                   onMouseLeave={() => setSelectedBar(null)}
                 >
-                  <rect
-                    x="0"
-                    y="0"
-                    width="100%"
-                    height="85%"
-                    fill="url(#default-multiple-pattern-dots)"
-                  />
-                  <defs>
-                    <DottedBackgroundPattern />
-                  </defs>
                   <XAxis
                     dataKey="day"
                     tickLine={false}
                     tickMargin={10}
                     axisLine={false}
                     tickFormatter={(value) => value.slice(0, 3)}
+                    className="text-slate-500"
                   />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" className="neumorphic-card border-0 shadow-none" />}
+                    content={<ChartTooltipContent indicator="dashed" className="bg-white border border-slate-200 shadow-lg rounded-xl" />}
                   />
-                  <Bar dataKey="scheduled" fill="var(--color-chart-1)" radius={4}>
+                  <Bar dataKey="scheduled" fill="#6366f1" radius={[6, 6, 0, 0]}>
                     {appointmentData.map((_, index) => (
                       <Cell
                         key={`cell-scheduled-${index}`}
                         fillOpacity={
                           selectedBar === null ? 1 : selectedBar === appointmentData[index].day ? 1 : 0.3
                         }
-                        stroke={selectedBar === appointmentData[index].day ? "var(--color-chart-1)" : ""}
+                        stroke={selectedBar === appointmentData[index].day ? "#6366f1" : ""}
                         onMouseEnter={() => setSelectedBar(appointmentData[index].day)}
-                        className="duration-200"
+                        className="transition-all duration-200"
                       />
                     ))}
                   </Bar>
-                  <Bar dataKey="cancelled" fill="var(--destructive)" radius={4}>
+                  <Bar dataKey="cancelled" fill="#ef4444" radius={[6, 6, 0, 0]}>
                     {appointmentData.map((_, index) => (
                       <Cell
                         key={`cell-cancelled-${index}`}
                         fillOpacity={
                           selectedBar === null ? 1 : selectedBar === appointmentData[index].day ? 1 : 0.3
                         }
-                        stroke={selectedBar === appointmentData[index].day ? "var(--destructive)" : ""}
+                        stroke={selectedBar === appointmentData[index].day ? "#ef4444" : ""}
                         onMouseEnter={() => setSelectedBar(appointmentData[index].day)}
-                        className="duration-200"
+                        className="transition-all duration-200"
                       />
                     ))}
                   </Bar>
@@ -328,26 +390,31 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         </Card>
 
         {/* Patients Overview */}
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="">
-            <h3 className="text-lg font-semibold">{dashboardConfig.sections.patientsOverview.title}</h3>
-            <div className="flex items-center justify-between mt-1">
-              <span className="flex items-center gap-2 text-sm">
-                <IconUsers className="size-4" />
-                {dashboardConfig.sections.patientsOverview.description}: {stats?.total_patients ?? 0}
-              </span>
+        <Card className="premium-card border-0 shadow-card">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-slate-900">{dashboardConfig.sections.patientsOverview.title}</CardTitle>
+                <CardDescription className="text-slate-500 flex items-center gap-2">
+                  <IconUsers className="w-4 h-4" />
+                  {dashboardConfig.sections.patientsOverview.description}: {stats?.total_patients ?? 0}
+                </CardDescription>
+              </div>
             </div>
-          </div>
-          <div className="px-4 sm:px-6">
+          </CardHeader>
+          <CardContent>
             {patientAgeData.length === 0 ? (
               <div className="flex items-center justify-center h-[200px]">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-sm">No patient age distribution data available</p>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <IconUsers className="w-8 h-8 text-slate-400" />
+                  </div>
+                  <p className="text-slate-500">No patient age distribution data available</p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col gap-2">
-                <div className="flex-shrink-0 mx-auto sm:mx-0 flex justify-center">
+              <div className="flex flex-col gap-4">
+                <div className="flex-shrink-0 mx-auto flex justify-center">
                   <ChartContainer
                     config={patientChartConfig}
                     className="h-[100px] w-[100px] sm:h-[120px] sm:w-[120px] md:h-[140px] md:w-[140px] lg:h-[160px] lg:w-[160px]"
@@ -369,7 +436,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                             key={`cell-${index}`}
                             fill={selectedPieSlice === entry.name ? entry.color : entry.color}
                             opacity={selectedPieSlice === null || selectedPieSlice === entry.name ? 1 : 0.6}
-                            stroke={selectedPieSlice === entry.name ? '#000' : 'none'}
+                            stroke={selectedPieSlice === entry.name ? '#1e293b' : 'none'}
                             strokeWidth={selectedPieSlice === entry.name ? 2 : 0}
                           />
                         ))}
@@ -379,10 +446,9 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                           if (active && payload && payload.length) {
                             const data = payload[0].payload;
                             return (
-                              <div className="neumorphic-card rounded-lg p-3">
-                                <p className="font-medium">{data.name}</p>
-                                <p className="text-sm">{data.value} patients</p>
-                                <p className="text-xs mt-1">Click to {selectedPieSlice === data.name ? 'deselect' : 'focus'}</p>
+                              <div className="bg-white rounded-xl p-3 shadow-lg border border-slate-200">
+                                <p className="font-medium text-slate-900">{data.name}</p>
+                                <p className="text-sm text-slate-500">{data.value} patients</p>
                               </div>
                             );
                           }
@@ -396,25 +462,25 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                   {patientAgeData.map((item, index) => (
                     <div
                       key={index}
-                      className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${selectedPieSlice === item.name ? 'neumorphic-pressed' : 'neumorphic-soft neumorphic-hover neumorphic-active'
-                        }`}
+                      className={`flex items-center justify-between text-sm cursor-pointer p-3 rounded-xl transition-all duration-200 ${selectedPieSlice === item.name 
+                        ? 'bg-indigo-50 border border-indigo-200' 
+                        : 'bg-slate-50 hover:bg-slate-100 border border-transparent'
+                      }`}
                       onClick={() => handlePieClick({ name: item.name })}
                     >
-                      <span className="flex items-center gap-2">
+                      <span className="flex items-center gap-3">
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-                        {item.name}
+                        <span className="text-slate-700">{item.name}</span>
                       </span>
-                      <span className="font-medium">{item.value}</span>
+                      <span className="font-semibold text-slate-900">{item.value}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
-          </div>
-        </div>
-
+          </CardContent>
+        </Card>
       </div>
-
     </div>
   )
 }
@@ -430,7 +496,7 @@ const DottedBackgroundPattern = () => {
       patternUnits="userSpaceOnUse"
     >
       <circle
-        className="dark:text-muted/40 text-muted"
+        className="text-slate-200"
         cx="2"
         cy="2"
         r="1"
