@@ -246,7 +246,7 @@ function Sidebar({
           data-slot="sidebar-inner"
           className={cn(
             "bg-sidebar flex h-full w-full flex-col",
-            variant === "floating" && "rounded-lg neumorphic-pressed"
+            variant === "floating" && "rounded-xl border border-sidebar-border shadow-lg"
           )}
         >
           {children}

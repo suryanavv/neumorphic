@@ -1,4 +1,4 @@
-import { IconCalendar, IconMedicalCross, IconUsers, IconBone, IconBrain, IconFlask, IconUser, IconHeart, IconHeartbeat, IconArrowRight } from "@tabler/icons-react"
+import { IconCalendar, IconMedicalCross, IconUsers, IconBone, IconBrain, IconFlask, IconUser, IconHeart, IconHeartbeat, IconArrowRight, IconTrendingUp, IconClock } from "@tabler/icons-react"
 import { PieChart, Pie, Cell, Bar, BarChart, XAxis, Tooltip } from "recharts"
 import { useState, useEffect } from "react"
 import { getErrorMessage } from "@/lib/errors"
@@ -29,17 +29,17 @@ const getIconByDepartment = (department: string) => {
   switch (department.toLowerCase()) {
     case 'cardiology':
     case 'cardiologist':
-      return <IconHeart className="text-2xl text-emerald-800" />
+      return <IconHeart className="text-2xl text-indigo-600" />
     case 'general physician':
-      return <IconHeartbeat className="text-2xl text-emerald-800" />
+      return <IconHeartbeat className="text-2xl text-indigo-600" />
     case 'neurology':
-      return <IconBrain className="text-2xl text-emerald-800" />
+      return <IconBrain className="text-2xl text-indigo-600" />
     case 'orthopedic':
-      return <IconBone className="text-2xl text-emerald-800" />
+      return <IconBone className="text-2xl text-indigo-600" />
     case 'endocrinology':
-      return <IconFlask className="text-2xl text-emerald-800" />
+      return <IconFlask className="text-2xl text-indigo-600" />
     default:
-      return <IconUser className="text-2xl text-emerald-800" />
+      return <IconUser className="text-2xl text-indigo-600" />
   }
 }
 
@@ -63,6 +63,25 @@ const appointmentChartConfig = {
 interface AnalyticsPageProps {
   onPageChange?: (pageOrObject: string | { page: string; params?: any }) => void
 }
+
+// SVG Illustration Components
+const DashboardIllustration = () => (
+  <svg viewBox="0 0 200 150" className="w-full h-full" fill="none">
+    <defs>
+      <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.1" />
+      </linearGradient>
+    </defs>
+    <rect x="20" y="30" width="60" height="80" rx="8" fill="url(#grad1)" stroke="#6366f1" strokeWidth="1.5" />
+    <rect x="30" y="45" width="40" height="6" rx="3" fill="#6366f1" opacity="0.6" />
+    <rect x="30" y="55" width="30" height="4" rx="2" fill="#6366f1" opacity="0.3" />
+    <rect x="30" y="70" width="40" height="25" rx="4" fill="#6366f1" opacity="0.15" />
+    <circle cx="140" cy="70" r="40" fill="url(#grad1)" stroke="#8b5cf6" strokeWidth="1.5" />
+    <path d="M120 70 L140 50 L160 70 L140 90 Z" fill="#8b5cf6" opacity="0.3" />
+    <circle cx="140" cy="70" r="15" fill="#6366f1" opacity="0.4" />
+  </svg>
+)
 
 export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   const [selectedPieSlice, setSelectedPieSlice] = useState<string | null>(null)
@@ -173,8 +192,8 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <div className="text-lg">Loading analytics...</div>
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg text-slate-600">Loading analytics...</div>
         </div>
       </div>
     )
@@ -183,101 +202,127 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
   if (error) {
     return (
       <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="text-center">
-          <div className="text-red-500 mb-4">Error loading analytics</div>
-          <div className="text-sm text-gray-600">{error}</div>
+        <div className="text-center bg-white rounded-2xl p-8 shadow-lg">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <div className="text-red-600 font-semibold mb-2">Error loading analytics</div>
+          <div className="text-sm text-slate-500">{error}</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* Welcome Banner */}
-      <div className="px-4 lg:px-6">
-        <span className="text-base sm:text-lg font-regular text-gray-800">
-          Welcome Back,{" "}
-          <span className="text-black-600 font-bold">Admin</span>
-        </span>
-      </div>
-
-      {/* Statistics Cards Section */}
-      <div className="px-4 lg:px-6">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
-            onClick={handlePatientsClick}
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <IconUsers className="size-4" />
-                Total Patients
-              </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                {stats?.total_patients?.toLocaleString() || 0}
-              </div>
-            </div>
+    <div className="space-y-6 p-6">
+      {/* Welcome Banner with Illustration */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl p-8 text-white">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-1/2 -left-1/4 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl"></div>
+        </div>
+        <div className="relative z-10 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome Back, <span className="text-yellow-300">Admin</span> 👋
+            </h1>
+            <p className="text-white/80 text-lg">
+              Here's what's happening with your clinic today
+            </p>
           </div>
-
-          <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
-            onClick={handleDoctorsClick}
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <IconMedicalCross className="size-4" />
-                Total Doctors
-              </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                {stats?.total_doctors?.toLocaleString() || 0}
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
-            onClick={handleAppointmentsClick}
-          >
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <IconCalendar className="size-4" />
-                Total Appointments
-              </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                {stats?.total_appointments?.toLocaleString() || 0}
-              </div>
-            </div>
-          </div>
-
-          <div className="neumorphic-inset p-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <IconCalendar className="size-4" />
-                Upcoming Appointments
-              </div>
-              <div className="text-3xl font-bold tabular-nums sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
-                {stats?.upcoming_appointments?.toLocaleString() || 0}
-              </div>
-            </div>
+          <div className="hidden lg:block w-48 h-36 opacity-80">
+            <DashboardIllustration />
           </div>
         </div>
       </div>
 
+      {/* Statistics Cards Section */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div
+          className="stat-card p-6 hover-lift cursor-pointer"
+          onClick={handlePatientsClick}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <IconUsers className="w-6 h-6 text-indigo-600" />
+            </div>
+            <span className="tag tag-primary">
+              <IconTrendingUp className="w-3 h-3 mr-1" />
+              +12%
+            </span>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">
+            {stats?.total_patients?.toLocaleString() || 0}
+          </div>
+          <div className="text-sm text-slate-500">Total Patients</div>
+        </div>
+
+        <div
+          className="stat-card stat-card-accent p-6 hover-lift cursor-pointer"
+          onClick={handleDoctorsClick}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
+              <IconMedicalCross className="w-6 h-6 text-cyan-600" />
+            </div>
+            <span className="tag tag-info">Active</span>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">
+            {stats?.total_doctors?.toLocaleString() || 0}
+          </div>
+          <div className="text-sm text-slate-500">Total Doctors</div>
+        </div>
+
+        <div
+          className="stat-card stat-card-success p-6 hover-lift cursor-pointer"
+          onClick={handleAppointmentsClick}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <IconCalendar className="w-6 h-6 text-emerald-600" />
+            </div>
+            <span className="tag tag-success">Completed</span>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">
+            {stats?.total_appointments?.toLocaleString() || 0}
+          </div>
+          <div className="text-sm text-slate-500">Total Appointments</div>
+        </div>
+
+        <div className="stat-card stat-card-warm p-6 hover-lift">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center">
+              <IconClock className="w-6 h-6 text-amber-600" />
+            </div>
+            <span className="tag tag-warning">Upcoming</span>
+          </div>
+          <div className="text-3xl font-bold text-slate-900 mb-1">
+            {stats?.upcoming_appointments?.toLocaleString() || 0}
+          </div>
+          <div className="text-sm text-slate-500">Upcoming Appointments</div>
+        </div>
+      </div>
+
       {/* Charts Row */}
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 px-4 lg:px-6 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
         {/* Appointment Trends */}
-        <Card className="neumorphic-inset border-0">
-          <CardHeader>
-            <CardTitle>Appointment Trends (This Week)</CardTitle>
-            <CardDescription>
-              {selectedBar ? (
-                <div>
-                  {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
-                </div>
-              ) : (
-                <span>Weekly appointment statistics</span>
-              )}
-            </CardDescription>
+        <Card className="premium-card border-0 shadow-card">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-slate-900">Appointment Trends</CardTitle>
+                <CardDescription className="text-slate-500">
+                  {selectedBar ? (
+                    <span>
+                      {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
+                    </span>
+                  ) : (
+                    <span>Weekly appointment statistics</span>
+                  )}
+                </CardDescription>
+              </div>
+              <span className="tag tag-primary">This Week</span>
+            </div>
           </CardHeader>
           <CardContent>
             <ChartContainer config={appointmentChartConfig} className="h-[250px] w-full sm:h-[280px] lg:h-[320px]">
@@ -286,50 +331,41 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 data={appointmentData}
                 onMouseLeave={() => setSelectedBar(null)}
               >
-                <rect
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="85%"
-                  fill="url(#default-multiple-pattern-dots)"
-                />
-                <defs>
-                  <DottedBackgroundPattern />
-                </defs>
                 <XAxis
                   dataKey="day"
                   tickLine={false}
                   tickMargin={10}
                   axisLine={false}
                   tickFormatter={(value) => value.slice(0, 3)}
+                  className="text-slate-500"
                 />
                 <ChartTooltip
                   cursor={false}
-                  content={<ChartTooltipContent indicator="dashed" className="neumorphic-card border-0 shadow-none" />}
+                  content={<ChartTooltipContent indicator="dashed" className="bg-white border border-slate-200 shadow-lg rounded-xl" />}
                 />
-                <Bar dataKey="scheduled" fill="var(--color-chart-1)" radius={4}>
+                <Bar dataKey="scheduled" fill="#6366f1" radius={[6, 6, 0, 0]}>
                   {appointmentData.map((_, index) => (
                     <Cell
                       key={`cell-scheduled-${index}`}
                       fillOpacity={
                         selectedBar === null ? 1 : selectedBar === appointmentData[index].day ? 1 : 0.3
                       }
-                      stroke={selectedBar === appointmentData[index].day ? "var(--color-chart-1)" : ""}
+                      stroke={selectedBar === appointmentData[index].day ? "#6366f1" : ""}
                       onMouseEnter={() => setSelectedBar(appointmentData[index].day)}
-                      className="duration-200"
+                      className="transition-all duration-200"
                     />
                   ))}
                 </Bar>
-                <Bar dataKey="cancelled" fill="var(--destructive)" radius={4}>
+                <Bar dataKey="cancelled" fill="#ef4444" radius={[6, 6, 0, 0]}>
                   {appointmentData.map((_, index) => (
                     <Cell
                       key={`cell-cancelled-${index}`}
                       fillOpacity={
                         selectedBar === null ? 1 : selectedBar === appointmentData[index].day ? 1 : 0.3
                       }
-                      stroke={selectedBar === appointmentData[index].day ? "var(--destructive)" : ""}
+                      stroke={selectedBar === appointmentData[index].day ? "#ef4444" : ""}
                       onMouseEnter={() => setSelectedBar(appointmentData[index].day)}
-                      className="duration-200"
+                      className="transition-all duration-200"
                     />
                   ))}
                 </Bar>
@@ -340,17 +376,20 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
         </Card>
 
         {/* Patients Overview */}
-        <div className="neumorphic-inset rounded-lg p-4 border-0">
-          <div className="pb-4">
-            <h3 className="text-lg font-semibold">Patients Overview</h3>
-            <div className="flex items-center justify-between mt-1">
-              <span className="flex items-center gap-2 text-sm">
-                <IconUsers className="size-4" />
-                Total Patients {stats?.total_patients?.toLocaleString() || 0}
-              </span>
+        <Card className="premium-card border-0 shadow-card">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-slate-900">Patients Overview</CardTitle>
+                <CardDescription className="text-slate-500 flex items-center gap-2">
+                  <IconUsers className="w-4 h-4" />
+                  Total: {stats?.total_patients?.toLocaleString() || 0} patients
+                </CardDescription>
+              </div>
+              <span className="tag tag-info">Age Distribution</span>
             </div>
-          </div>
-          <div className="px-4 sm:px-6">
+          </CardHeader>
+          <CardContent>
             <div className="flex flex-row gap-6 items-center">
               <div className="flex-shrink-0 flex justify-center">
                 <ChartContainer
@@ -374,7 +413,7 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                           key={`cell-${index}`}
                           fill={selectedPieSlice === entry.name ? entry.color : entry.color}
                           opacity={selectedPieSlice === null || selectedPieSlice === entry.name ? 1 : 0.6}
-                          stroke={selectedPieSlice === entry.name ? '#000' : 'none'}
+                          stroke={selectedPieSlice === entry.name ? '#1e293b' : 'none'}
                           strokeWidth={selectedPieSlice === entry.name ? 2 : 0}
                         />
                       ))}
@@ -384,10 +423,9 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload;
                           return (
-                            <div className="neumorphic-card rounded-lg p-3">
-                              <p className="font-medium">{data.name}</p>
-                              <p className="text-sm">{data.value} patients</p>
-                              <p className="text-xs mt-1">Click to {selectedPieSlice === data.name ? 'deselect' : 'focus'}</p>
+                            <div className="bg-white rounded-xl p-3 shadow-lg border border-slate-200">
+                              <p className="font-medium text-slate-900">{data.name}</p>
+                              <p className="text-sm text-slate-500">{data.value} patients</p>
                             </div>
                           );
                         }
@@ -401,60 +439,24 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 {patientAgeData.filter(entry => entry.name !== 'Unknown').map((entry, index) => (
                   <div
                     key={index}
-                    className={`flex items-center justify-between text-sm cursor-pointer p-2 rounded-md transition-all duration-200 ${selectedPieSlice === entry.name ? 'neumorphic-pressed' : 'neumorphic-soft neumorphic-hover neumorphic-active'
-                      }`}
+                    className={`flex items-center justify-between text-sm cursor-pointer p-3 rounded-xl transition-all duration-200 ${selectedPieSlice === entry.name 
+                      ? 'bg-indigo-50 border border-indigo-200' 
+                      : 'bg-slate-50 hover:bg-slate-100 border border-transparent'
+                    }`}
                     onClick={() => handlePieClick({ name: entry.name })}
                   >
-                    <span className="flex items-center gap-2">
+                    <span className="flex items-center gap-3">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }}></div>
-                      {entry.name}
+                      <span className="text-slate-700">{entry.name}</span>
                     </span>
-                    <span className="font-medium">{entry.value}</span>
+                    <span className="font-semibold text-slate-900">{entry.value}</span>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Specializations */}
-      {/* <div className="px-4 lg:px-6">
-        <div className="w-full h-[180px] p-4 rounded-[10px] bg-white flex flex-col">
-          <div className="flex flex-row justify-between items-center w-full mb-3">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Specializations
-            </h2>
-            {Object.entries(doctorStats).length > 5 && (
-              <Button
-                className="text-emerald-800 border border-emerald-800 w-[82px] h-[32px] rounded-[4px] text-sm hover:bg-emerald-50 transition"
-                onClick={() => onPageChange && onPageChange('doctors')}
-              >
-                View all
-              </Button>
-            )}
-          </div>
-
-          <div className="flex gap-3 overflow-x-auto overflow-y-hidden flex-1">
-            {Object.entries(doctorStats).map(([title, count], index) => (
-              <div
-                key={index}
-                className="flex flex-col w-[145px] min-w-[145px] h-[110px] rounded-lg bg-white hover:shadow-md transition cursor-pointer relative"
-                onClick={() => onPageChange && onPageChange({ page: 'doctors', params: { department: title } })}
-              >
-                <div className="flex flex-col justify-between border-t border-l border-r border-b border-gray-200 rounded-lg p-3 h-[90px]">
-                  <div className="flex justify-between items-start">
-                    <div>{getIconByDepartment(title)}</div>
-                    <IconArrowRight className="text-sm text-emerald-600" />
-                  </div>
-                  <div className="font-semibold text-black-900 text-sm capitalize text-left">{title}</div>
-                  <div className="text-xs text-gray-600 text-left">{count} Doctors</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div> */}
     </div>
   )
 }
@@ -470,7 +472,7 @@ const DottedBackgroundPattern = () => {
       patternUnits="userSpaceOnUse"
     >
       <circle
-        className="dark:text-muted/40 text-muted"
+        className="text-slate-200"
         cx="2"
         cy="2"
         r="1"

@@ -44,7 +44,7 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupContent ref={containerRef} className="flex flex-col gap-2 relative">
+      <SidebarGroupContent ref={containerRef} className="flex flex-col gap-1 relative">
         <SidebarMenu>
           {items.map((item, index) => (
             <SidebarMenuItem key={item.title} ref={(el) => { menuRefs.current[index] = el; }}>
@@ -52,7 +52,7 @@ export function NavMain({
                 tooltip={item.title}
                 onClick={() => item.page && onPageChange?.(item.page)}
                 isActive={currentPage === item.page}
-                className=""
+                className="rounded-lg transition-all duration-200"
               >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
@@ -63,10 +63,10 @@ export function NavMain({
 
           {activeTabRect && (
           <div
-              className="absolute left-0 right-0 bg-primary/20 rounded-sm pointer-events-none"
+              className="absolute left-0 w-1 bg-primary rounded-r-full pointer-events-none transition-all duration-200"
             style={{
-                top: activeTabRect.top,
-                height: activeTabRect.height,
+                top: activeTabRect.top + 4,
+                height: activeTabRect.height - 8,
               }}
             />
           )}
