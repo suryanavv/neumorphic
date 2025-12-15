@@ -60,6 +60,14 @@ const appointmentChartConfig = {
   },
 } satisfies ChartConfig
 
+// Light gradient accents for each stat card (keeps visuals consistent with login/admin)
+const statGradients: Record<string, string> = {
+  patients: "from-emerald-500/25 via-emerald-500/10 to-transparent",
+  doctors: "from-blue-500/25 via-blue-500/10 to-transparent",
+  appointments: "from-amber-500/25 via-amber-500/10 to-transparent",
+  upcoming: "from-fuchsia-500/25 via-fuchsia-500/10 to-transparent",
+}
+
 interface AnalyticsPageProps {
   onPageChange?: (pageOrObject: string | { page: string; params?: any }) => void
 }
@@ -205,10 +213,14 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
       <div className="px-4 lg:px-6">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
             onClick={handlePatientsClick}
           >
-            <div className="space-y-2">
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.patients}`}
+              aria-hidden
+            />
+            <div className="relative space-y-2 z-10">
               <div className="flex items-center gap-2 text-sm">
                 <IconUsers className="size-4" />
                 Total Patients
@@ -220,10 +232,14 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           </div>
 
           <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
             onClick={handleDoctorsClick}
           >
-            <div className="space-y-2">
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.doctors}`}
+              aria-hidden
+            />
+            <div className="relative space-y-2 z-10">
               <div className="flex items-center gap-2 text-sm">
                 <IconMedicalCross className="size-4" />
                 Total Doctors
@@ -235,10 +251,14 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
           </div>
 
           <div
-            className="neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
+            className="relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer"
             onClick={handleAppointmentsClick}
           >
-            <div className="space-y-2">
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.appointments}`}
+              aria-hidden
+            />
+            <div className="relative space-y-2 z-10">
               <div className="flex items-center gap-2 text-sm">
                 <IconCalendar className="size-4" />
                 Total Appointments
@@ -249,8 +269,12 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             </div>
           </div>
 
-          <div className="neumorphic-inset p-4">
-            <div className="space-y-2">
+          <div className="relative overflow-hidden neumorphic-inset p-4">
+            <div
+              className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${statGradients.upcoming}`}
+              aria-hidden
+            />
+            <div className="relative space-y-2 z-10">
               <div className="flex items-center gap-2 text-sm">
                 <IconCalendar className="size-4" />
                 Upcoming Appointments

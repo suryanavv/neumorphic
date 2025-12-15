@@ -72,9 +72,10 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       setError(errorMessage)
       setShowMfa(false) // Reset MFA on error
       setMfaCode('')
-    } finally {
-      setIsLoading(false)
+      setIsLoading(false) // Only reset loading state on error
     }
+    // Note: We don't reset isLoading on success because the page will redirect
+    // This prevents the brief flash back to "Login" button before dashboard loads
   }
 
 

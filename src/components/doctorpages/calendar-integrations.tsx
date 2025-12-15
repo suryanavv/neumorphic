@@ -159,9 +159,11 @@ export function CalendarIntegrations() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
-        <span className="ml-2 text-sm">Loading calendar integrations...</span>
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg">Loading calendar integrations...</div>
+        </div>
       </div>
     )
   }

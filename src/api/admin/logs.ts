@@ -26,9 +26,9 @@ export class AdminLogsAPI extends BaseAPI {
   }
 
   /**
-   * Get transcript for a specific call log
+   * Get transcript (and optional audio) for a specific call log
    */
-  static async getTranscript(logId: string): Promise<TranscriptTurn[]> {
+  static async getTranscript(logId: string): Promise<TranscriptTurn[] | { transcript: TranscriptTurn[]; audio?: string }> {
     const response = await fetch(
       `${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`,
       {
@@ -39,18 +39,25 @@ export class AdminLogsAPI extends BaseAPI {
 
     const data = await this.handleResponse<any>(response)
 
+    const normalizeTranscript = (raw: any[]): TranscriptTurn[] =>
+      raw
+        .filter((turn: any) => turn && turn.message !== null)
+        .map((turn: any) => ({
+          speaker: turn.role === 'agent' ? 'A' : 'P',
+          label: turn.role === 'agent' ? 'Assistant' : 'Patient',
+          text: turn.message
+        }))
+
     if (Array.isArray(data)) {
-      return data
-    } else if (data.transcript && Array.isArray(data.transcript)) {
-      return data.transcript
-                .filter((turn: any) => turn.message !== null)
-                .map((turn: any) => ({
-                    speaker: turn.role === 'agent' ? 'A' : 'P',
-                    label: turn.role === 'agent' ? 'Assistant' : 'Patient',
-                    text: turn.message
-                }))
+      return normalizeTranscript(data)
     }
 
-    return []
+    const rawTranscript = Array.isArray(data?.transcript) ? data.transcript : []
+    const audio = data?.audio as string | undefined
+
+    return {
+      transcript: normalizeTranscript(rawTranscript),
+      audio
+    }
   }
 }

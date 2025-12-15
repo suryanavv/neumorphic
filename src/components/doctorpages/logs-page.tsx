@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react"
-import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconFilter } from "@tabler/icons-react"
+import { useState, useEffect, useMemo, useRef } from "react"
+import { IconPhone, IconCheck, IconRefresh, IconX, IconExclamationCircle, IconStar, IconFilter, IconPlayerPlay, IconPlayerPause, IconDownload } from "@tabler/icons-react"
 import {
   Select,
   SelectContent,
@@ -105,6 +105,11 @@ export function LogsPage() {
   const [loading, setLoading] = useState(true)
   const [transcript, setTranscript] = useState<TranscriptTurn[]>([])
   const [loadingTranscript, setLoadingTranscript] = useState(false)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+  const [audioDuration, setAudioDuration] = useState(0)
+  const [audioPosition, setAudioPosition] = useState(0)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     fetchLogs()
@@ -132,6 +137,15 @@ export function LogsPage() {
     [allLogs, timeFilter]
   )
 
+  // Gradient accents per summary card
+  const logCardGradients: Record<string, string> = {
+    total: "from-sky-500/20 via-sky-500/10 to-transparent",
+    scheduled: "from-emerald-500/20 via-emerald-500/10 to-transparent",
+    rescheduled: "from-indigo-500/20 via-indigo-500/10 to-transparent",
+    cancelled: "from-amber-500/25 via-amber-500/10 to-transparent",
+    failed: "from-fuchsia-500/20 via-fuchsia-500/10 to-transparent",
+  }
+
   // Calculate summary stats from time-filtered logs
   const summaryStats = useMemo(() => ({
     total: timeFilteredLogs.length,
@@ -156,11 +170,24 @@ export function LogsPage() {
     setLoadingTranscript(true)
     try {
       // Use id (number) converted to string for transcript fetch
-      const fetchedTranscript = await DoctorLogsAPI.getTranscript(log.id.toString())
-      setTranscript(fetchedTranscript)
+      const fetchedTranscript: any = await DoctorLogsAPI.getTranscript(log.id.toString())
+      // API may return { transcript, audio }
+      if (Array.isArray(fetchedTranscript)) {
+        setTranscript(fetchedTranscript)
+        setAudioUrl(null)
+      } else {
+        setTranscript(fetchedTranscript?.transcript || [])
+        setAudioUrl(fetchedTranscript?.audio ? `data:audio/mpeg;base64,${fetchedTranscript.audio}` : null)
+      }
+      setIsAudioPlaying(false)
+      setAudioDuration(0)
+      setAudioPosition(0)
     } catch (error) {
       console.error("Failed to fetch transcript:", error)
       setTranscript([])
+      setAudioUrl(null)
+      setAudioDuration(0)
+      setAudioPosition(0)
     } finally {
       setLoadingTranscript(false)
     }
@@ -191,22 +218,29 @@ export function LogsPage() {
     return `${minutes}m ${seconds}s`
   }
 
-  // Helper to format date
-  const formatDate = (dateString: string) => {
-    // Ensure UTC if no timezone specified (API returns UTC)
-    const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
-    const date = new Date(utcString)
+  // Helper to format date (null-safe)
+  const formatDate = (dateString: string | null | undefined) => {
+    if (!dateString) return ''
+    try {
+      // Ensure UTC if no timezone specified (API returns UTC)
+      const utcString = dateString.endsWith('Z') ? dateString : `${dateString}Z`
+      const date = new Date(utcString)
 
-    return new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      hour12: true
-    }).format(date)
+      if (isNaN(date.getTime())) return dateString
+
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true
+      }).format(date)
+    } catch {
+      return dateString
+    }
   }
 
   const handleDownloadTranscript = () => {
@@ -221,6 +255,39 @@ export function LogsPage() {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  const handleToggleAudio = () => {
+    if (!audioRef.current) return
+    if (audioRef.current.paused) {
+      audioRef.current.play()
+      setIsAudioPlaying(true)
+    } else {
+      audioRef.current.pause()
+      setIsAudioPlaying(false)
+    }
+  }
+
+  const handleDownloadAudio = () => {
+    if (!selectedLog || !audioUrl) return
+    const a = document.createElement('a')
+    a.href = audioUrl
+    a.download = `audio-${selectedLog.call_id || selectedLog.id}.mp3`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+  }
+
+  // Show full-page loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg">Loading call logs...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -258,11 +325,15 @@ export function LogsPage() {
             return (
               <div
                 key={card.key}
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${isActive ? 'neumorphic-pressed ring-2 ring-primary' : ''
+                className={`relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 cursor-pointer ${isActive ? 'neumorphic-pressed ring-2 ring-primary' : ''
                   }`}
                 onClick={handleCardClick}
               >
-                <div className="space-y-2">
+                <div
+                  className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${logCardGradients[card.key] ?? "from-primary/20 via-primary/5 to-transparent"}`}
+                  aria-hidden
+                />
+                <div className="relative space-y-2 z-10">
                   <div className="flex items-center gap-2 text-sm">
                     {getIconComponent(card.icon)}
                     {card.title}
@@ -317,13 +388,7 @@ export function LogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y-2 divide-muted/90">
-                {loading ? (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">
-                      Loading logs...
-                    </td>
-                  </tr>
-                ) : filteredLogs.length === 0 ? (
+                {filteredLogs.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-8 text-center text-muted-foreground">
                       No logs found.
@@ -369,6 +434,14 @@ export function LogsPage() {
             setShowTranscript(false)
             setSelectedLog(null)
             setTranscript([])
+            if (audioRef.current) {
+              audioRef.current.pause()
+              audioRef.current.currentTime = 0
+            }
+            setAudioUrl(null)
+            setIsAudioPlaying(false)
+            setAudioDuration(0)
+            setAudioPosition(0)
           }}
         >
           <div
@@ -405,9 +478,78 @@ export function LogsPage() {
                 </div>
               </div>
 
+              {audioUrl && (
+                <div className="space-y-2 bg-muted/40 rounded-lg px-3 py-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleToggleAudio}
+                        className="w-fit text-xs sm:text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                      >
+                        {isAudioPlaying ? (
+                          <IconPlayerPause className="size-5" />
+                        ) : (
+                          <IconPlayerPlay className="size-5" />
+                        )}
+                      </Button>
+                      <audio
+                        ref={audioRef}
+                        src={audioUrl}
+                        onEnded={() => setIsAudioPlaying(false)}
+                        onLoadedMetadata={() => {
+                          if (audioRef.current?.duration) {
+                            setAudioDuration(audioRef.current.duration)
+                          }
+                        }}
+                        onTimeUpdate={() => {
+                          if (audioRef.current) {
+                            setAudioPosition(audioRef.current.currentTime)
+                            setAudioDuration(audioRef.current.duration || audioDuration)
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handleDownloadAudio}
+                        className="w-fit text-xs sm:text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200 px-3 py-2"
+                      >
+                        <IconDownload className="size-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="range"
+                      min={0}
+                      max={audioDuration || 1}
+                      step={0.1}
+                      value={Math.min(audioPosition, audioDuration || 1)}
+                      onChange={(e) => {
+                        const val = Number(e.target.value)
+                        setAudioPosition(val)
+                        if (audioRef.current) {
+                          audioRef.current.currentTime = val
+                        }
+                      }}
+                      className="w-full audio-slider"
+                    />
+                    <span className="text-[11px] text-muted-foreground w-16 text-right">
+                      {Math.floor(audioPosition)}s / {Math.max(1, Math.floor(audioDuration))}s
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="max-h-[60vh] overflow-y-auto bg-card rounded-lg p-4 text-sm space-y-3">
                 {loadingTranscript ? (
-                  <p className="text-sm text-center py-4">Loading transcript...</p>
+                  <div className="flex items-center justify-center py-8">
+                    <div className="text-center">
+                      <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                      <p className="text-sm">Loading transcript...</p>
+                    </div>
+                  </div>
                 ) : transcript.length === 0 ? (
                   <p className="text-sm">
                     No transcript available for this call yet.

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sen:wght@400..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -43,55 +43,54 @@
 :root {
   --radius: 1rem;
   /* Brand Color Palette */
-  /* Primary Colors - Teals and deep greens */
-  --bright-teal: #14B5AA;
-  --dark-teal: #005C55;
-  --deep-forest: #00332D;
+  /* Primary Colors - Medical Teals */
+  --bright-teal: #0EA5A3;
+  --dark-teal: #007A78;
+  --deep-forest: #004D4B;
   /* Secondary Colors - Accent colors */
-  --vibrant-orange: #FF8200;
-  --burnt-sienna: #9C4300;
-  /* Tertiary Colors - Background and neutral tones */
-  --pale-mint: #E0F7F4;
-  --midnight-green: #01211C;
+  --vibrant-orange: #FF8A50;
+  --burnt-sienna: #D65A20;
+  /* Tertiary Colors - Fresh medical tones */
+  --pale-mint: #E8F8F7;
+  --midnight-green: #003533;
 
-  /* Neumorphic base surface */
-  --background: #e0e0e0;
-  --foreground: #000000;
-  --card: #e0e0e0;
-  --card-foreground: #2d2d2d;
-  --popover: #e0e0e0;
-  --popover-foreground: #2d2d2d;
-  /* Primary palette - Bright Teal (preserved) */
-  --primary: #14B5AA;
+  /* Clean Medical Dashboard Base - Bright & Airy */
+  --background: #f4f8fa;
+  --foreground: #1a2e35;
+  --card: #f7fafc;
+  --card-foreground: #1a2e35;
+  --popover: #ffffff;
+  --popover-foreground: #1a2e35;
+  /* Primary palette - Fresh Teal */
+  --primary: #0EA5A3;
   --primary-foreground: #ffffff;
-  --secondary: #d0d0d0;
-  --secondary-foreground: #2d2d2d;
-  --muted: #d5d5d5;
-  --muted-foreground: #5a5a5a;
-  /* Accent & Destructive - Orange (preserved) */
-  --accent: #FF8200;
+  --secondary: #e8f0f5;
+  --secondary-foreground: #1a2e35;
+  --muted: #e2eaef;
+  --muted-foreground: #4a6670;
+  /* Accent & Destructive */
+  --accent: #FF8A50;
   --accent-foreground: #ffffff;
-  --destructive: #FF8200;
+  --destructive: #FF8A50;
   --destructive-foreground: #ffffff;
-  --border: transparent;
-  --input: #d5d5d5;
-  --ring: #14B5AA;
-  /* Charts in teal ramp */
-  --chart-1: #14B5AA;
-  --chart-2: #005C55;
-  --chart-3: #00332D;
-  --chart-4: #14B5AA;
-  --chart-5: #005C55;
-  /* Sidebar tokens - neumorphic style */
-  --sidebar: #d5d5d5;
-  --sidebar-foreground: #2d2d2d;
-  /* --sidebar-primary: #14B5AA; */
-  --sidebar-primary: #00ffee;
+  --border: rgba(14, 165, 163, 0.1);
+  --input: #e8f0f5;
+  --ring: #0EA5A3;
+  /* Charts in fresh teal ramp */
+  --chart-1: #0EA5A3;
+  --chart-2: #26C6C0;
+  --chart-3: #007A78;
+  --chart-4: #4DD9D5;
+  --chart-5: #00A89D;
+  /* Sidebar tokens - Clean medical style */
+  --sidebar: #f0f5f8;
+  --sidebar-foreground: #1a2e35;
+  --sidebar-primary: #0EA5A3;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #d0d0d0;
-  --sidebar-accent-foreground: #000000;
-  --sidebar-border: transparent;
-  --sidebar-ring: #000000;
+  --sidebar-accent: #e8f0f5;
+  --sidebar-accent-foreground: #1a2e35;
+  --sidebar-border: rgba(14, 165, 163, 0.08);
+  --sidebar-ring: #0EA5A3;
 }
 
 @layer base {
@@ -115,80 +114,78 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Sen', sans-serif;
+    font-family: 'Nunito Sans', sans-serif;
     text-transform: capitalize;
   }
 
-
-
-  /* Scrollbars for all scrollable elements */
+  /* Medical Dashboard Scrollbars - Clean & Fresh */
   * {
     scrollbar-width: auto;
-    scrollbar-color: rgba(1, 122, 112, 0.8) transparent;
+    scrollbar-color: rgba(14, 165, 163, 0.5) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px;
   }
 
   *::-webkit-scrollbar-track {
+    background: rgba(14, 165, 163, 0.05);
     border-radius: 10px;
-    box-shadow: inset 2px 2px 4px rgba(0, 92, 85, 0.2);
   }
 
   *::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #0EA5A3, #26C6C0);
     border-radius: 10px;
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    box-shadow:
-      inset 2px 2px 4px rgba(0, 92, 85, 0.5),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.9);
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    border: 3px solid rgba(255, 255, 255, 1);
+    background: linear-gradient(180deg, #007A78, #0EA5A3);
+    background-clip: padding-box;
   }
 
 }
 
-/* Neumorphism Utility Classes */
+/* Neumorphism Utility Classes - Medical Dashboard Theme */
 @layer utilities {
   .neumorphic {
     background: var(--background);
     border-radius: var(--radius);
     box-shadow:
-      8px 8px 16px rgba(163, 163, 163, 0.4),
-      -8px -8px 16px rgba(255, 255, 255, 0.8);
+      6px 6px 14px rgba(166, 187, 200, 0.35),
+      -6px -6px 14px rgba(255, 255, 255, 0.95);
   }
 
   .neumorphic-inset {
     background: var(--background);
     border-radius: var(--radius);
     box-shadow:
-      inset 4px 4px 8px rgba(163, 163, 163, 0.4),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.3),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.9);
   }
 
   .neumorphic-pressed {
     background: var(--card);
     border-radius: var(--radius);
     box-shadow:
-      inset 4px 4px 8px rgba(163, 163, 163, 0.4),
-      inset -4px -4px 8px rgba(230, 230, 230, 0.9);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.25),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.95);
   }
 
   .neumorphic-hover:hover {
     box-shadow:
-      12px 12px 24px rgba(163, 163, 163, 0.5),
-      -12px -12px 24px rgba(255, 255, 255, 0.9);
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
+      10px 10px 20px rgba(166, 187, 200, 0.4),
+      -10px -10px 20px rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
+    transition: all 0.25s ease;
   }
 
   .neumorphic-active:active {
     box-shadow:
-      inset 4px 4px 8px rgba(163, 163, 163, 0.5),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.7);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.35),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.85);
     transform: translateY(0);
   }
 
@@ -196,115 +193,116 @@
     background: var(--card);
     border-radius: var(--radius);
     box-shadow:
-      10px 10px 20px rgba(163, 163, 163, 0.3),
-      -10px -10px 20px rgba(230, 230, 230, 0.95);
+      8px 8px 18px rgba(166, 187, 200, 0.25),
+      -8px -8px 18px rgba(255, 255, 255, 1);
   }
 
-  /* Buttons */
+  /* Buttons - Clean Medical Style */
   .neumorphic-btn {
-    background: #ffffff;
+    background: linear-gradient(145deg, #ffffff, #f7fafc);
     border: none;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 12px 24px;
     box-shadow:
-      8px 8px 16px rgba(163, 177, 198, 0.5),
-      -8px -8px 16px rgba(255, 255, 255, 1);
+      5px 5px 12px rgba(166, 187, 200, 0.35),
+      -5px -5px 12px rgba(255, 255, 255, 1);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     font-weight: 600;
-    color: #555555;
+    color: #1a2e35;
   }
 
   .neumorphic-btn:hover {
     box-shadow:
-      18px 18px 36px rgba(163, 177, 198, 0.7),
-      -18px -18px 36px rgba(255, 255, 255, 1);
-    transform: translateY(-3px);
+      8px 8px 20px rgba(166, 187, 200, 0.45),
+      -8px -8px 20px rgba(255, 255, 255, 1);
+    transform: translateY(-2px);
   }
 
   .neumorphic-btn:active {
     box-shadow:
-      inset 4px 4px 8px rgba(163, 177, 198, 0.5),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.9);
-    transform: translateY(1px);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.4),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+    transform: translateY(0);
   }
 
   .neumorphic-btn-primary {
-    background: #E0F7F4;
+    background: linear-gradient(145deg, #E8F8F7, #d5f4f2);
     box-shadow:
-      8px 8px 16px rgba(163, 177, 198, 0.4),
-      -8px -8px 16px rgba(255, 255, 255, 1),
-      inset 0 0 0 1px rgba(20, 181, 170, 0.4);
-    color: #14B5AA;
+      5px 5px 12px rgba(166, 187, 200, 0.3),
+      -5px -5px 12px rgba(255, 255, 255, 1),
+      inset 0 0 0 1px rgba(14, 165, 163, 0.25);
+    color: #0EA5A3;
   }
 
   .neumorphic-btn-primary:hover {
     box-shadow:
-      18px 18px 36px rgba(163, 177, 198, 0.7),
-      -18px -18px 36px rgba(255, 255, 255, 1),
-      inset 0 0 0 1px rgba(20, 181, 170, 0.55);
+      8px 8px 20px rgba(166, 187, 200, 0.45),
+      -8px -8px 20px rgba(255, 255, 255, 1),
+      inset 0 0 0 1.5px rgba(14, 165, 163, 0.4);
   }
 
   .neumorphic-btn-primary:active {
     box-shadow:
-      inset 6px 6px 12px rgba(163, 177, 198, 0.6),
-      inset -6px -6px 12px rgba(255, 255, 255, 0.9),
-      inset 0 0 0 1px rgba(20, 181, 170, 0.7);
+      inset 4px 4px 10px rgba(166, 187, 200, 0.45),
+      inset -4px -4px 10px rgba(255, 255, 255, 0.95),
+      inset 0 0 0 1.5px rgba(14, 165, 163, 0.5);
   }
 
   .neumorphic-soft {
     background: var(--card);
     border-radius: var(--radius);
     box-shadow:
-      4px 4px 8px rgba(163, 163, 163, 0.2),
-      -4px -4px 8px rgba(230, 230, 230, 0.9);
+      3px 3px 7px rgba(166, 187, 200, 0.2),
+      -3px -3px 7px rgba(255, 255, 255, 0.95);
   }
 
-  /* Input Fields */
+  /* Input Fields - Clean & Professional */
   .neumorphic-input {
     background: #ffffff;
-    border: none;
+    border: 1px solid rgba(14, 165, 163, 0.1);
     border-radius: 12px;
     padding: 12px 16px;
     box-shadow:
-      inset 4px 4px 8px rgba(163, 177, 198, 0.3),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
-    transition: all 0.3s ease;
+      inset 2px 2px 5px rgba(166, 187, 200, 0.2),
+      inset -2px -2px 5px rgba(255, 255, 255, 0.9);
+    transition: all 0.25s ease;
     font-size: 16px;
-    color: #555555;
+    color: #1a2e35;
   }
 
   .neumorphic-input:focus {
     outline: none;
+    border-color: rgba(14, 165, 163, 0.3);
     box-shadow:
-      inset 6px 6px 12px rgba(163, 177, 198, 0.4),
-      inset -6px -6px 12px rgba(255, 255, 255, 0.9),
-      0 0 0 3px rgba(0, 185, 174, 0.25);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.25),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.95),
+      0 0 0 3px rgba(14, 165, 163, 0.15);
   }
 
   .neumorphic-input::placeholder {
-    color: #999999;
+    color: #8aa0a8;
   }
 
-  /* Sidebar */
+  /* Sidebar - Clean Medical */
   .neumorphic-sidebar {
-    background: #ffffff;
+    background: linear-gradient(180deg, #ffffff, #f7fafc);
     border-radius: 20px;
     box-shadow:
-      inset 8px 8px 16px rgba(163, 177, 198, 0.3),
-      inset -8px -8px 16px rgba(255, 255, 255, 0.8);
+      inset 4px 4px 10px rgba(166, 187, 200, 0.2),
+      inset -4px -4px 10px rgba(255, 255, 255, 0.9);
   }
 
-  /* Toggle Switches */
+  /* Toggle Switches - Medical Style */
   .neumorphic-toggle {
     position: relative;
     width: 60px;
     height: 30px;
-    background: #ffffff;
+    background: linear-gradient(145deg, #f0f5f8, #e8f0f5);
     border-radius: 15px;
     box-shadow:
-      inset 4px 4px 8px rgba(163, 177, 198, 0.4),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+      inset 2px 2px 5px rgba(166, 187, 200, 0.35),
+      inset -2px -2px 5px rgba(255, 255, 255, 0.9);
     cursor: pointer;
     transition: all 0.3s ease;
   }
@@ -316,52 +314,53 @@
     left: 3px;
     width: 24px;
     height: 24px;
-    background: #ffffff;
+    background: linear-gradient(145deg, #ffffff, #f7fafc);
     border-radius: 50%;
     box-shadow:
-      2px 2px 4px rgba(163, 177, 198, 0.3),
-      -2px -2px 4px rgba(255, 255, 255, 0.8);
+      2px 2px 5px rgba(166, 187, 200, 0.3),
+      -2px -2px 5px rgba(255, 255, 255, 0.9);
     transition: all 0.3s ease;
   }
 
   .neumorphic-toggle.active {
+    background: linear-gradient(145deg, #E8F8F7, #d5f4f2);
     box-shadow:
-      inset -4px -4px 8px rgba(163, 177, 198, 0.4),
-      inset 4px 4px 8px rgba(255, 255, 255, 0.8);
+      inset 2px 2px 5px rgba(14, 165, 163, 0.2),
+      inset -2px -2px 5px rgba(255, 255, 255, 0.9);
   }
 
   .neumorphic-toggle.active::before {
     transform: translateX(30px);
+    background: linear-gradient(145deg, #0EA5A3, #26C6C0);
     box-shadow:
-      -2px -2px 4px rgba(163, 177, 198, 0.3),
-      2px 2px 4px rgba(255, 255, 255, 0.8);
+      2px 2px 5px rgba(14, 165, 163, 0.4),
+      -1px -1px 3px rgba(255, 255, 255, 0.6);
   }
 
-  /* Progress Bars */
+  /* Progress Bars - Fresh Medical */
   .neumorphic-progress {
-    background: #ffffff;
+    background: linear-gradient(145deg, #f0f5f8, #e8f0f5);
     border-radius: 10px;
     height: 8px;
     box-shadow:
-      inset 2px 2px 4px rgba(163, 177, 198, 0.3),
-      inset -2px -2px 4px rgba(255, 255, 255, 0.8);
+      inset 2px 2px 4px rgba(166, 187, 200, 0.25),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.9);
     overflow: hidden;
   }
 
   .neumorphic-progress-bar {
     height: 100%;
-    background: linear-gradient(145deg, #E0F7F4, #14B5AA);
+    background: linear-gradient(145deg, #26C6C0, #0EA5A3);
     border-radius: 10px;
     box-shadow:
-      2px 2px 4px rgba(0, 92, 85, 0.2),
-      -2px -2px 4px rgba(255, 255, 255, 0.8);
-    transition: width 0.3s ease;
+      1px 1px 3px rgba(14, 165, 163, 0.4),
+      -1px -1px 3px rgba(255, 255, 255, 0.5);
+    transition: width 0.35s ease;
   }
 
   /* Extra-thin scrollbar specifically for time picker lists */
   .timepicker-scroll {
     scrollbar-width: thin;
-    /* Firefox */
   }
 
   .timepicker-scroll::-webkit-scrollbar {
@@ -373,18 +372,17 @@
   }
 
   .timepicker-scroll::-webkit-scrollbar-thumb {
-    background: rgba(1, 122, 112, 0.6);
-    /* brandish teal */
+    background: rgba(14, 165, 163, 0.5);
     border-radius: 9999px;
   }
 
   .timepicker-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(1, 122, 112, 0.9);
+    background: rgba(14, 165, 163, 0.8);
   }
 
-  /* Icons/Avatars */
+  /* Icons/Avatars - Clean Medical */
   .neumorphic-icon {
-    background: #ffffff;
+    background: linear-gradient(145deg, #ffffff, #f7fafc);
     border-radius: 50%;
     width: 48px;
     height: 48px;
@@ -392,47 +390,121 @@
     align-items: center;
     justify-content: center;
     box-shadow:
-      6px 6px 12px rgba(163, 177, 198, 0.4),
-      -6px -6px 12px rgba(255, 255, 255, 1);
-    transition: all 0.3s ease;
+      4px 4px 10px rgba(166, 187, 200, 0.3),
+      -4px -4px 10px rgba(255, 255, 255, 1);
+    transition: all 0.25s ease;
     cursor: pointer;
   }
 
   .neumorphic-icon:hover {
     box-shadow:
-      12px 12px 24px rgba(163, 177, 198, 0.6),
-      -12px -12px 24px rgba(255, 255, 255, 1);
+      6px 6px 14px rgba(166, 187, 200, 0.4),
+      -6px -6px 14px rgba(255, 255, 255, 1);
     transform: translateY(-2px);
   }
 
   .neumorphic-icon:active {
     box-shadow:
-      inset 3px 3px 6px rgba(163, 177, 198, 0.4),
-      inset -3px -3px 6px rgba(255, 255, 255, 0.8);
-    transform: translateY(1px);
+      inset 2px 2px 5px rgba(166, 187, 200, 0.35),
+      inset -2px -2px 5px rgba(255, 255, 255, 0.9);
+    transform: translateY(0);
   }
 
-  /* Modal/Dialog */
+  /* Modal/Dialog - Premium Medical */
   .neumorphic-modal {
-    background: #ffffff;
+    background: linear-gradient(145deg, #ffffff, #f9fbfc);
     border-radius: 24px;
     box-shadow:
-      30px 30px 60px rgba(163, 177, 198, 0.4),
-      -30px -30px 60px rgba(255, 255, 255, 1);
+      20px 20px 50px rgba(166, 187, 200, 0.35),
+      -20px -20px 50px rgba(255, 255, 255, 1);
     max-width: 500px;
     margin: 0 auto;
   }
 
   .neumorphic-overlay {
-    background: rgba(224, 224, 224, 0.85);
-    backdrop-filter: blur(4px);
+    background: rgba(244, 248, 250, 0.9);
+    backdrop-filter: blur(8px);
   }
 
   .neumorphic-inset-sidebar {
     background: var(--sidebar);
     border-radius: var(--radius);
     box-shadow:
-      inset 4px 4px 8px rgba(163, 163, 163, 0.4),
-      inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+      inset 3px 3px 7px rgba(166, 187, 200, 0.25),
+      inset -3px -3px 7px rgba(255, 255, 255, 0.95);
+  }
+
+  /* Audio Slider - Smooth Medical Style */
+  .audio-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(145deg, #e8f0f5, #f0f5f8);
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+    box-shadow:
+      inset 2px 2px 4px rgba(166, 187, 200, 0.25),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.9);
+    transition: all 0.15s ease;
+  }
+
+  .audio-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(145deg, #0EA5A3, #26C6C0);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow:
+      2px 2px 5px rgba(14, 165, 163, 0.4),
+      -1px -1px 3px rgba(255, 255, 255, 0.6);
+    transition: all 0.15s ease;
+  }
+
+  .audio-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow:
+      3px 3px 8px rgba(14, 165, 163, 0.5),
+      -2px -2px 5px rgba(255, 255, 255, 0.7);
+  }
+
+  .audio-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(145deg, #0EA5A3, #26C6C0);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    box-shadow:
+      2px 2px 5px rgba(14, 165, 163, 0.4),
+      -1px -1px 3px rgba(255, 255, 255, 0.6);
+    transition: all 0.15s ease;
+  }
+
+  .audio-slider::-moz-range-thumb:hover {
+    transform: scale(1.15);
+  }
+
+  .audio-slider::-moz-range-track {
+    width: 100%;
+    height: 8px;
+    background: linear-gradient(145deg, #e8f0f5, #f0f5f8);
+    border-radius: 10px;
+  }
+
+  .audio-slider:hover {
+    box-shadow:
+      inset 3px 3px 6px rgba(166, 187, 200, 0.3),
+      inset -3px -3px 6px rgba(255, 255, 255, 0.95);
+  }
+
+  .audio-slider:focus {
+    box-shadow:
+      inset 2px 2px 4px rgba(166, 187, 200, 0.25),
+      inset -2px -2px 4px rgba(255, 255, 255, 0.9),
+      0 0 0 3px rgba(14, 165, 163, 0.15);
   }
 }

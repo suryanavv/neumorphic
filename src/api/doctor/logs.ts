@@ -4,11 +4,23 @@ import type { CallLog, LogFilters, TranscriptTurn } from "../shared/types"
 
 export class DoctorLogsAPI extends BaseAPI {
     /**
-     * Get all call logs for a doctor/clinic
+     * Get all call logs for a doctor/clinic using the clinic-specific endpoint
      */
     static async getLogs(filters?: LogFilters): Promise<CallLog[]> {
-        const queryString = this.buildQueryString(filters || {})
-        const url = `${this.getBaseUrl()}/dashboard/logs${queryString ? `?${queryString}` : ''}`
+        // Get clinic ID from auth storage
+        const userData = AuthStorage.getUserData()
+        const clinicId = userData?.clinic_id
+
+        if (!clinicId) {
+            console.warn('⚠️ No clinic ID found, cannot fetch logs')
+            return []
+        }
+
+        // Build URL with clinic_id for the new by-clinic endpoint
+        const baseParams: Record<string, any> = { clinic_id: clinicId }
+        const allParams = { ...baseParams, ...(filters || {}) }
+        const queryString = this.buildQueryString(allParams)
+        const url = `${this.getBaseUrl()}/dashboard/logs/by-clinic${queryString ? `?${queryString}` : ''}`
 
         const response = await fetch(url, {
             method: 'GET',
@@ -24,26 +36,14 @@ export class DoctorLogsAPI extends BaseAPI {
             logs = data.logs
         }
 
-        // Filter logs by clinic's phone number (to_phone must match clinic phone)
-        const clinicData = AuthStorage.getClinicData()
-        const clinicPhone = clinicData?.phone_number
-
-        // console.log('🔍 Filtering logs by clinic phone:', clinicPhone)
-
-        if (clinicPhone) {
-            const filtered = logs.filter(log => log.to_phone === clinicPhone)
-            // console.log(`📊 Filtered ${filtered.length} logs out of ${logs.length}`)
-            return filtered
-        }
-
-        // console.log('⚠️ No clinic phone number found, returning all logs')
+        // No need to filter on frontend anymore - backend handles it
         return logs
     }
 
     /**
-     * Get transcript for a specific call log
+     * Get transcript (and optional audio) for a specific call log
      */
-    static async getTranscript(logId: string): Promise<TranscriptTurn[]> {
+    static async getTranscript(logId: string): Promise<TranscriptTurn[] | { transcript: TranscriptTurn[]; audio?: string }> {
         const response = await fetch(
             `${this.getBaseUrl()}/dashboard/logs/transcript?id=${logId}`,
             {
@@ -54,19 +54,26 @@ export class DoctorLogsAPI extends BaseAPI {
 
         const data = await this.handleResponse<any>(response)
 
-        if (Array.isArray(data)) {
-            return data
-        } else if (data.transcript && Array.isArray(data.transcript)) {
-            return data.transcript
-                .filter((turn: any) => turn.message !== null)
+        const normalizeTranscript = (raw: any[]): TranscriptTurn[] =>
+            raw
+                .filter((turn: any) => turn && turn.message !== null)
                 .map((turn: any) => ({
                     speaker: turn.role === 'agent' ? 'A' : 'P',
                     label: turn.role === 'agent' ? 'Assistant' : 'Patient',
                     text: turn.message
                 }))
+
+        if (Array.isArray(data)) {
+            return normalizeTranscript(data)
         }
 
-        return []
+        const rawTranscript = Array.isArray(data?.transcript) ? data.transcript : []
+        const audio = data?.audio as string | undefined
+
+        return {
+            transcript: normalizeTranscript(rawTranscript),
+            audio
+        }
     }
 }
 

@@ -135,7 +135,7 @@ export function PatientsPage() {
 
     return { value: filtered, error }
   }
-  
+
   // Form state for adding patient
   const [formData, setFormData] = useState({
     firstName: '',
@@ -441,6 +441,35 @@ export function PatientsPage() {
     )
   }
 
+  // Show full-page loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="text-lg">Loading patients...</div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full min-h-[400px]">
+        <div className="text-center">
+          <div className="text-red-500 text-lg mb-4">{error}</div>
+          <Button
+            onClick={() => window.location.reload()}
+            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+          >
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Patients Table */}
@@ -448,89 +477,69 @@ export function PatientsPage() {
         {/* Header with title, filter and Add Patient button */}
         {/* <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-4"> */}
-            {/* Provider Filter */}
-            <div className="flex items-center gap-2 mb-3">
-            <IconFilter className="w-4 h-4" />
-              <label className="text-sm font-medium">Filter by:</label>
-              <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
-                <SelectTrigger className="w-[200px] neumorphic-inset">
-                  <SelectValue placeholder="Select provider" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All providers</SelectItem>
-                  {clinics.map((clinic) => (
-                    <SelectItem key={clinic.id} value={clinic.id.toString()}>
-                      {clinic.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          {/* </div>
+        {/* Provider Filter */}
+        <div className="flex items-center gap-2 mb-3">
+          <IconFilter className="w-4 h-4" />
+          <label className="text-sm font-medium">Filter by:</label>
+          <Select value={selectedClinicId} onValueChange={setSelectedClinicId}>
+            <SelectTrigger className="w-[200px] neumorphic-inset">
+              <SelectValue placeholder="Select provider" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All providers</SelectItem>
+              {clinics.map((clinic) => (
+                <SelectItem key={clinic.id} value={clinic.id.toString()}>
+                  {clinic.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* </div>
         </div> */}
         <div className="neumorphic-inset rounded-lg p-4 border-0">
-          {error && (
-            <div className="text-center py-8 text-destructive">
-              <p className="text-sm mb-2">{error}</p>
-              <Button
-                onClick={() => window.location.reload()}
-                className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-              >
-                Try Again
-              </Button>
-            </div>
-          )}
-
-          {!error && (
-            <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
-              <table className="w-full text-sm table-fixed">
-                <thead className="sticky top-0 z-10 bg-card">
-                  <tr className="border-b-2 border-muted/90 bg-muted/10">
-                    <th className="text-left font-medium py-3 px-4 w-1/4">Patient Name</th>
-                    <th className="text-left font-medium py-3 px-4 w-1/4">Date of Birth</th>
-                    <th className="text-left font-medium py-3 px-4 w-1/4">Phone Number</th>
-                    <th className="text-left font-medium py-3 px-4 w-1/4">Actions</th>
+          <div className="overflow-x-auto max-h-[78vh] overflow-y-auto bg-card rounded-lg">
+            <table className="w-full text-sm table-fixed">
+              <thead className="sticky top-0 z-10 bg-card">
+                <tr className="border-b-2 border-muted/90 bg-muted/10">
+                  <th className="text-left font-medium py-3 px-4 w-1/4">Patient Name</th>
+                  <th className="text-left font-medium py-3 px-4 w-1/4">Date of Birth</th>
+                  <th className="text-left font-medium py-3 px-4 w-1/4">Phone Number</th>
+                  <th className="text-left font-medium py-3 px-4 w-1/4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y-2 divide-muted/90">
+                {filteredPatients.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-8 text-center">
+                      <div className="text-sm">No patients found</div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y-2 divide-muted/90">
-                  {loading ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center">
-                        <div className="text-sm">Loading patients...</div>
+                ) : (
+                  filteredPatients.map((patient) => (
+                    <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <IconUserCircle className="w-5 h-5 flex-shrink-0" />
+                          <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 text-sm">{formatDate(patient.dob)}</td>
+                      <td className="py-3 px-4 text-sm">{patient.phone_number}</td>
+                      <td className="py-3 px-4">
+                        <Button
+                          onClick={() => handleViewProfile(patient)}
+                          className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                        >
+                          View Profile
+                        </Button>
                       </td>
                     </tr>
-                  ) : filteredPatients.length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="py-8 text-center">
-                        <div className="text-sm">No patients found</div>
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredPatients.map((patient) => (
-                      <tr key={patient.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <IconUserCircle className="w-5 h-5 flex-shrink-0" />
-                            <span className="font-medium text-sm truncate">{`${patient.first_name} ${patient.last_name}`}</span>
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-sm">{formatDate(patient.dob)}</td>
-                        <td className="py-3 px-4 text-sm">{patient.phone_number}</td>
-                        <td className="py-3 px-4">
-                          <Button
-                            onClick={() => handleViewProfile(patient)}
-                            className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
-                          >
-                            View Profile
-                          </Button>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

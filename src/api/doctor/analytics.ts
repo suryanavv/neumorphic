@@ -194,15 +194,26 @@ export class DoctorAnalyticsAPI extends BaseAPI {
   }
 
   /**
-   * Get total logs count filtered by clinic phone number
+   * Get total logs count filtered by clinic using the clinic-specific endpoint
    */
   static async getLogsCount(clinicId?: number, doctorId?: number): Promise<number> {
-    const params: Record<string, any> = {}
-    if (clinicId) params.clinic_id = clinicId
+    // If no clinic ID provided, try to get from auth storage
+    if (!clinicId) {
+      const userData = AuthStorage.getUserData()
+      clinicId = userData?.clinic_id
+    }
+
+    if (!clinicId) {
+      console.warn('⚠️ No clinic ID found, cannot fetch logs count')
+      return 0
+    }
+
+    // Use the new by-clinic endpoint
+    const params: Record<string, any> = { clinic_id: clinicId }
     if (doctorId) params.doctor_id = doctorId
 
     const queryString = this.buildQueryString(params)
-    const url = `${this.getBaseUrl()}/dashboard/logs${queryString ? `?${queryString}` : ''}`
+    const url = `${this.getBaseUrl()}/dashboard/logs/by-clinic${queryString ? `?${queryString}` : ''}`
 
     const response = await fetch(url, {
       method: 'GET',
@@ -218,21 +229,11 @@ export class DoctorAnalyticsAPI extends BaseAPI {
     } else if (data.logs && Array.isArray(data.logs)) {
       logs = data.logs
     } else if (data.count !== undefined) {
-      // If API returns count directly, we still need to fetch logs to filter
-      // But for now, return the count if logs array is not available
+      // If API returns count directly, use it
       return data.count
     }
 
-    // Filter logs by clinic's phone number (to_phone must match clinic phone)
-    const clinicData = AuthStorage.getClinicData()
-    const clinicPhone = clinicData?.phone_number
-
-    if (clinicPhone && logs.length > 0) {
-      const filtered = logs.filter(log => log.to_phone === clinicPhone)
-      return filtered.length
-    }
-
-    // If no clinic phone number found, return all logs count
+    // No need to filter on frontend anymore - backend handles it
     return logs.length
   }
 }

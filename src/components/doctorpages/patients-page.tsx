@@ -1439,17 +1439,28 @@ export function PatientsPage() {
             </Button>
           </div>
 
-          {/* Loading State */}
+          {/* Full-page Loading State */}
           {loading && (
-            <div className="flex items-center justify-center py-12">
-              <IconLoader2 className="w-8 h-8 animate-spin text-foreground" />
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+              <div className="text-center">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-lg">Loading patients...</div>
+              </div>
             </div>
           )}
 
           {/* Error State */}
-          {error && (
-            <div className="neumorphic-inset rounded-lg p-4 mb-4 bg-destructive/10">
-              <p className="text-sm text-destructive">{error}</p>
+          {error && !loading && (
+            <div className="flex items-center justify-center h-full min-h-[400px]">
+              <div className="text-center">
+                <div className="text-red-500 text-lg mb-4">{error}</div>
+                <Button
+                  onClick={() => window.location.reload()}
+                  className="w-fit text-sm font-medium neumorphic-pressed text-foreground hover:text-foreground-foreground rounded-lg shadow-none cursor-pointer transition-all duration-200"
+                >
+                  Try Again
+                </Button>
+              </div>
             </div>
           )}
 

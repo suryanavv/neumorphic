@@ -432,9 +432,9 @@ export function SettingsPage() {
           {/* Working Hours Tab */}
           <TabsContent value="working-hours" className="mt-3 max-w-md">
             {isLoadingWorkingHours ? (
-              <div className="flex items-center justify-center py-8">
-                <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
-                <span className="ml-2 text-sm">Loading working hours...</span>
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="text-sm">Loading working hours...</div>
               </div>
             ) : (
               <>
@@ -514,9 +514,9 @@ export function SettingsPage() {
 
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
                 {isLoadingOffDays ? (
-                  <div className="flex items-center justify-center py-8">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
-                    <span className="ml-2 text-sm">Loading off days...</span>
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="text-sm">Loading off days...</div>
                   </div>
                 ) : (
                   <div className="max-h-[70vh] overflow-y-auto">
@@ -615,9 +615,9 @@ export function SettingsPage() {
 
               <div className="neumorphic-inset rounded-lg p-3 sm:p-4 border-0">
                 {isLoadingOffDays ? (
-                  <div className="flex items-center justify-center py-8">
-                    <IconLoader2 className="w-6 h-6 animate-spin text-foreground" />
-                    <span className="ml-2 text-sm">Loading holidays...</span>
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div className="text-sm">Loading holidays...</div>
                   </div>
                 ) : (
                   <div className="max-h-[70vh] overflow-y-auto">

@@ -180,6 +180,14 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
     }
   ]
 
+  // Light gradient accents per card
+  const gradientClasses: Record<string, string> = {
+    totalPatients: "from-emerald-500/25 via-emerald-500/10 to-transparent",
+    totalLogs: "from-amber-500/25 via-amber-500/10 to-transparent",
+    totalAppointments: "from-blue-500/25 via-blue-500/10 to-transparent",
+    todaysAppointments: "from-fuchsia-500/25 via-fuchsia-500/10 to-transparent"
+  }
+
   if (loading) {
     return (
       <div className="space-y-4 sm:space-y-6">
@@ -221,11 +229,15 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             return (
               <div
                 key={stat.id}
-                className={`neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${isClickable ? "cursor-pointer" : ""
+              className={`relative overflow-hidden neumorphic-inset p-4 neumorphic-hover transition-all duration-200 ${isClickable ? "cursor-pointer" : ""
                   }`}
                 onClick={isClickable ? handleCardClick : undefined}
               >
-                <div className="space-y-2">
+              <div
+                className={`pointer-events-none absolute inset-0 bg-gradient-to-br ${gradientClasses[stat.id] ?? "from-primary/20 via-primary/5 to-transparent"}`}
+                aria-hidden
+              />
+              <div className="relative space-y-2 z-10">
                   <div className="flex items-center gap-2 text-sm">
                     <IconComponent className="size-4" />
                     {stat.label}
@@ -249,15 +261,6 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
             <CardTitle>
               {dashboardConfig.sections.appointmentTrends.title}
             </CardTitle>
-            <CardDescription>
-              {selectedBar ? (
-                <div>
-                  {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
-                </div>
-              ) : (
-                <span>{dashboardConfig.sections.appointmentTrends.description}</span>
-              )}
-            </CardDescription>
           </CardHeader>
           <CardContent>
             {appointmentData.length === 0 ? (
@@ -324,6 +327,13 @@ export function AnalyticsPage({ onPageChange }: AnalyticsPageProps) {
                 </BarChart>
               </ChartContainer>
             )}
+            <CardDescription>
+            {selectedBar ? (
+                <div>
+                  {selectedBar} - Scheduled: {appointmentData.find(d => d.day === selectedBar)?.scheduled || 0}, Cancelled: {appointmentData.find(d => d.day === selectedBar)?.cancelled || 0}
+                </div>
+              ) : ""}
+            </CardDescription>
           </CardContent>
         </Card>
 
