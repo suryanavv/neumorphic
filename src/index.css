@@ -1,56 +1,58 @@
 @import "tailwindcss";
 
-/* Custom sidebar menu button styling - pure black text */
+/* Custom sidebar menu button styling - Apple liquid glass style */
 [data-sidebar="menu-button"] {
-  color: #000000 !important;
+  color: #1d1d1f !important;
 }
 
 [data-sidebar="menu-button"] span {
-  color: #000000 !important;
+  color: #1d1d1f !important;
 }
 
 [data-sidebar="menu-button"] svg {
-  color: #000000 !important;
+  color: #1d1d1f !important;
 }
 
-/* Hover states - keep text black */
+/* Hover states - subtle glass highlight */
 [data-sidebar="menu-button"]:hover {
-  color: #000000 !important;
+  color: #1d1d1f !important;
+  background: rgba(0, 122, 255, 0.08) !important;
 }
 
 [data-sidebar="menu-button"]:hover span {
-  color: #000000 !important;
+  color: #1d1d1f !important;
 }
 
 [data-sidebar="menu-button"]:hover svg {
-  color: #000000 !important;
+  color: #007AFF !important;
 }
 
-/* Active state styling */
+/* Active state styling - Apple accent */
 [data-sidebar="menu-button"][data-active="true"] {
-  /* Background removed - using custom bar indicator from nav-main.tsx instead */
-  background-color: transparent !important;
-  color: #000000 !important;
-  border-radius: 6px !important;
+  background: rgba(0, 122, 255, 0.12) !important;
+  color: #007AFF !important;
+  border-radius: 10px !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"] span {
-  color: #000000 !important;
+  color: #007AFF !important;
+  font-weight: 600 !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"] svg {
-  color: #000000 !important;
+  color: #007AFF !important;
 }
 
 /* Active hover state */
 [data-sidebar="menu-button"][data-active="true"]:hover {
-  color: #000000 !important;
+  color: #007AFF !important;
+  background: rgba(0, 122, 255, 0.16) !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"]:hover span {
-  color: #000000 !important;
+  color: #007AFF !important;
 }
 
 [data-sidebar="menu-button"][data-active="true"]:hover svg {
-  color: #000000 !important;
+  color: #007AFF !important;
 }
